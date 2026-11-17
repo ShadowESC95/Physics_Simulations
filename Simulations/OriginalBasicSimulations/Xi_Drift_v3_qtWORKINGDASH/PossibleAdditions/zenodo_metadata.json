@@ -1,0 +1,34 @@
+{
+  "title": "Entropy-Curvature Scalar Framework: Falsifiable Horndeski-Driven Cosmological Field Dynamics",
+  "creators": [
+    {
+      "name": "[Your Name]"
+    },
+    {
+      "name": "[Collaborator Name]"
+    }
+  ],
+  "description": "We present a unified scalar-entropy framework based on a recursive field Xi(x, t) coupled to curvature, inertia, and gauge structures through generalized Horndeski dynamics. The formalism supports variable gravity, emergent entropy loops, and spontaneous gauge symmetry breaking via Stueckelberg photon mass. Model 5\u2014representing the full curvature feedback case\u2014is simulated across 200 steps and compared to gravitational wave observables, Planck birefringence, and QSO \u03b1-drifts. We offer falsifiable predictions testable by NANOGrav, CMB-S4, and optical atomic clocks. A full software suite is released (Docker, Dash, Jupyter, Zenodo archive), enabling public simulation and interaction. This work bridges first-principles Lagrangian physics with observational cosmology and laboratory analogs.",
+  "keywords": [
+    "Horndeski",
+    "scalar-tensor theories",
+    "entropy field",
+    "photon mass",
+    "birefringence",
+    "emergent gravity",
+    "fine-structure constant",
+    "quantum cosmology",
+    "falsifiability",
+    "interactive simulation"
+  ],
+  "upload_type": "software",
+  "license": "MIT",
+  "publication_date": "2025-04-23",
+  "related_identifiers": [
+    {
+      "identifier": "https://github.com/YOUR_USERNAME/xi-chi-framework",
+      "relation": "isSupplementTo",
+      "scheme": "url"
+    }
+  ]
+}

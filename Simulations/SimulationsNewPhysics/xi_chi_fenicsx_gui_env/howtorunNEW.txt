@@ -1,0 +1,42 @@
+How to run (examples)
+
+Three arrays (Xi, Chi, u from Poisson with RHS = Chi):
+
+python modules/fenicsx_time_evolution.py \
+  --nx 64 --ny 64 --nz 64 \
+  --steps 100 --dt 0.005 \
+  --kappa 1.0 --alpha 1.0 --beta 0.01 \
+  --chi-mode sincos \
+  --u-mode poisson --u-rhs chi \
+  --out output/xi_chi_u_evolution.xdmf
+
+
+Just Xi and Chi (no u):
+
+python modules/fenicsx_time_evolution.py --u-mode none --out output/xi_chi_evolution.xdmf
+
+Export time series to VTU and build a PVD
+python modules/fenicsx_export_vtu.py \
+  --in output/xi_chi_u_evolution.xdmf \
+  --out output \
+  --pattern "xi_chi_u_%04d.vtu"
+
+python - <<'PY'
+import glob, os
+vtus = sorted(glob.glob("output/xi_chi_u_*.vtu"))
+with open("output/xi_chi_u_series.pvd","w") as f:
+    f.write('<?xml version="1.0"?>\n<VTKFile type="Collection" version="0.1" byte_order="LittleEndian">\n  <Collection>\n')
+    for i,p in enumerate(vtus):
+        f.write(f'    <DataSet timestep="{i}" file="{os.path.basename(p)}"/>\n')
+    f.write('  </Collection>\n</VTKFile>\n')
+print("frames:", len(vtus))
+PY
+
+
+Open output/xi_chi_u_series.pvd in ParaView → Point Array Status will offer Xi, Chi, and u for coloring/toggling.
+
+Notes
+
+This keeps your Xi–Chi math intact; u is not fed back into the Xi update unless you decide to. If you want u to influence Xi, say with + gamma*u, that’s a one-line change in the RHS for L_xi.
+
+Poisson needs a Dirichlet BC to avoid a singular matrix; this script pins u=0 on the whole boundary (change in the on_bdry lambda if you need something else).

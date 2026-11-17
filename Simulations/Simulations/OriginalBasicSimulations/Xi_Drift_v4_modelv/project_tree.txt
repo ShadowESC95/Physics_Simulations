@@ -1,0 +1,39 @@
+physics_simulation/
+├── simulation/
+│   ├── solver.py
+│   ├── solver_interface.py
+│   ├── openfoam_interface.py
+│   ├── petsc_solver.py
+│   ├── fenics_solver.py
+│   ├── pysph_solver.py
+│   ├── solver_loader.py
+│   ├── config_loader.py
+│   ├── postprocess.py
+│   ├── yt_hook.py
+├── gui/
+│   ├── viewer.py
+│   ├── controls.py
+├── exporters/
+│   ├── hdf5_exporter.py
+│   ├── vtk_exporter.py
+│   ├── paraview_exporter.py
+├── utils/
+│   ├── math_utils.py
+│   ├── logger.py
+├── tests/
+│   ├── test_solver.py
+├── configs/
+│   ├── default.yml
+├── cpp_modules/openfoam_interface/
+│   ├── openfoam_bridge.cpp
+│   ├── CMakeLists.txt
+├── notebooks/
+│   ├── simulation_demo.ipynb
+├── cli.py
+├── __main__.py
+├── Makefile
+├── CMakeLists.txt
+├── requirements.txt
+├── setup.py
+├── README.md
+├── CHANGELOG.md

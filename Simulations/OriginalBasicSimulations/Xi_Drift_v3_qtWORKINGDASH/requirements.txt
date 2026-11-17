@@ -1,0 +1,18 @@
+# requirements.txt
+dash==2.16.1
+numpy
+torch
+plotly
+matplotlib
+scipy
+pyqtgraph
+pyvista
+PyQt5
+sympy
+yt
+websockets>=11.0
+dash-bootstrap-components
+pyqt5
+mpi4py
+tensorboard
+pysph

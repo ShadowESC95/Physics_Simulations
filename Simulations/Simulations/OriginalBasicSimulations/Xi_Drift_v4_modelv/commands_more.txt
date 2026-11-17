@@ -1,0 +1,47 @@
+🖼️ Viewer Usage
+Launch the PyQt5 3D viewer:
+
+Always show details
+
+make run-viewer
+
+Or directly:
+
+Always show details
+
+python viewer3d.py
+
+Optional: Import programmatically
+
+Always show details
+
+from viewer3d import FieldViewer
+viewer = FieldViewer()
+viewer.show()
+
+📤 Export Simulation Data
+LAMMPS
+
+Always show details
+
+from lammps_export import export_to_lammps
+export_to_lammps(data, filename="data.lammps")
+
+deal.II
+
+Always show details
+
+from dealii_export import export_to_hdf5
+export_to_hdf5(data, filename="field.h5")
+
+🧩 Project Structure
+
+Always show details
+.
+├── viewer3d.py              # Main GUI viewer
+├── field_loader.py          # Supports .npy, .hdf5, .vtk
+├── lammps_export.py         # Exporter to LAMMPS format
+├── dealii_export.py         # Exporter to deal.II HDF5
+├── requirements.txt
+├── Makefile
+└── README.md

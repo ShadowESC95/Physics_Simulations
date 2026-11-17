@@ -1,0 +1,818 @@
+Performing C++ SOURCE FILE Test DEAL_II_HAVE_AVX failed with the following compile output:
+Change Dir: /home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_444fd/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_444fd.dir/build.make CMakeFiles/cmTC_444fd.dir/build
+gmake[1]: Entering directory '/home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_444fd.dir/src.cxx.o
+/usr/bin/c++ -DDEAL_II_HAVE_AVX   -o CMakeFiles/cmTC_444fd.dir/src.cxx.o -c /home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp/src.cxx
+/home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp/src.cxx:3:6: error: #error "__AVX__ flag not set, no support for AVX"
+    3 |     #error "__AVX__ flag not set, no support for AVX"
+      |      ^~~~~
+/home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp/src.cxx: In function ‘int main()’:
+/home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp/src.cxx:35:9: warning: AVX vector return without AVX enabled changes the ABI [-Wpsabi]
+   35 |       b = _mm256_set1_pd (static_cast<volatile double>(2.25));
+      |       ~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+gmake[1]: *** [CMakeFiles/cmTC_444fd.dir/build.make:78: CMakeFiles/cmTC_444fd.dir/src.cxx.o] Error 1
+gmake[1]: Leaving directory '/home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp'
+gmake: *** [Makefile:127: cmTC_444fd/fast] Error 2
+
+
+...and run output:
+
+Return value: 1
+Source file was:
+
+    #ifndef __AVX__
+    #error "__AVX__ flag not set, no support for AVX"
+    #endif
+    #include <x86intrin.h>
+    class VectorizedArray
+    {
+    public:
+      VectorizedArray &
+      operator += (const VectorizedArray &vec)
+      {
+        data = _mm256_add_pd (data, vec.data);
+        return *this;
+      }
+      __m256d data;
+    };
+    inline
+    VectorizedArray
+    operator + (const VectorizedArray &u, const VectorizedArray &v)
+    {
+      VectorizedArray tmp = u;
+      return tmp+=v;
+    }
+    int main()
+    {
+      __m256d a, b;
+      const unsigned int vector_bytes = sizeof(__m256d);
+      const int n_vectors = vector_bytes/sizeof(double);
+      __m256d * data =
+        reinterpret_cast<__m256d*>(_mm_malloc (2*vector_bytes, vector_bytes));
+      double * ptr = reinterpret_cast<double*>(&a);
+      ptr[0] = static_cast<volatile double>(1.0);
+      for (int i=1; i<n_vectors; ++i)
+        ptr[i] = 0.0;
+      b = _mm256_set1_pd (static_cast<volatile double>(2.25));
+      data[0] = _mm256_add_pd (a, b);
+      data[1] = _mm256_mul_pd (b, data[0]);
+      ptr = reinterpret_cast<double*>(&data[1]);
+      int return_value = 0;
+      if (ptr[0] != 7.3125)
+        return_value = 1;
+      for (int i=1; i<n_vectors; ++i)
+        if (ptr[i] != 5.0625)
+          return_value = 1;
+      VectorizedArray c, d, e;
+      c.data = b;
+      d.data = b;
+      e = c + d;
+      ptr = reinterpret_cast<double*>(&e.data);
+      for (int i=0; i<n_vectors; ++i)
+        if (ptr[i] != 4.5)
+          return_value = 1;
+      _mm_free (data);
+      return return_value;
+    }
+    
+Performing C++ SOURCE FILE Test DEAL_II_HAVE_AVX512 failed with the following compile output:
+Change Dir: /home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_42390/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_42390.dir/build.make CMakeFiles/cmTC_42390.dir/build
+gmake[1]: Entering directory '/home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_42390.dir/src.cxx.o
+/usr/bin/c++ -DDEAL_II_HAVE_AVX512   -o CMakeFiles/cmTC_42390.dir/src.cxx.o -c /home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp/src.cxx
+/home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp/src.cxx:3:6: error: #error "__AVX512F__ flag not set, no support for AVX512"
+    3 |     #error "__AVX512F__ flag not set, no support for AVX512"
+      |      ^~~~~
+/home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp/src.cxx: In function ‘int main()’:
+/home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp/src.cxx:18:9: warning: AVX512F vector return without AVX512F enabled changes the ABI [-Wpsabi]
+   18 |       b = _mm512_set1_pd(x);
+      |       ~~^~~~~~~~~~~~~~~~~~~
+gmake[1]: *** [CMakeFiles/cmTC_42390.dir/build.make:78: CMakeFiles/cmTC_42390.dir/src.cxx.o] Error 1
+gmake[1]: Leaving directory '/home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp'
+gmake: *** [Makefile:127: cmTC_42390/fast] Error 2
+
+
+...and run output:
+
+Return value: 1
+Source file was:
+
+    #ifndef __AVX512F__
+    #error "__AVX512F__ flag not set, no support for AVX512"
+    #endif
+    #include <x86intrin.h>
+    int main()
+    {
+      __m512d a, b;
+      const unsigned int vector_bytes = sizeof(__m512d);
+      const int n_vectors = vector_bytes/sizeof(double);
+      __m512d * data =
+        reinterpret_cast<__m512d*>(_mm_malloc (2*vector_bytes, vector_bytes));
+      double * ptr = reinterpret_cast<double*>(&a);
+      ptr[0] = static_cast<volatile double>(1.0);
+      for (int i=1; i<n_vectors; ++i)
+        ptr[i] = 0.0;
+      const volatile double x = 2.25;
+      b = _mm512_set1_pd(x);
+      data[0] = _mm512_add_pd (a, b);
+      data[1] = _mm512_mul_pd (b, data[0]);
+      ptr = reinterpret_cast<double*>(&data[1]);
+      int return_value = 0;
+      if (ptr[0] != 7.3125)
+        return_value = 1;
+      for (int i=1; i<n_vectors; ++i)
+        if (ptr[i] != 5.0625)
+          return_value = 1;
+      _mm_free (data);
+      return return_value;
+    }
+    
+Performing C++ SOURCE FILE Test DEAL_II_HAVE_ALTIVEC failed with the following compile output:
+Change Dir: /home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_81fdb/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_81fdb.dir/build.make CMakeFiles/cmTC_81fdb.dir/build
+gmake[1]: Entering directory '/home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_81fdb.dir/src.cxx.o
+/usr/bin/c++ -DDEAL_II_HAVE_ALTIVEC   -o CMakeFiles/cmTC_81fdb.dir/src.cxx.o -c /home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp/src.cxx
+/home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp/src.cxx:3:6: error: #error "__ALTIVEC__ flag not set, no support for Altivec"
+    3 |     #error "__ALTIVEC__ flag not set, no support for Altivec"
+      |      ^~~~~
+/home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp/src.cxx:5:14: fatal error: altivec.h: No such file or directory
+    5 |     #include <altivec.h>
+      |              ^~~~~~~~~~~
+compilation terminated.
+gmake[1]: *** [CMakeFiles/cmTC_81fdb.dir/build.make:78: CMakeFiles/cmTC_81fdb.dir/src.cxx.o] Error 1
+gmake[1]: Leaving directory '/home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp'
+gmake: *** [Makefile:127: cmTC_81fdb/fast] Error 2
+
+
+...and run output:
+
+Return value: 1
+Source file was:
+
+    #ifndef __ALTIVEC__
+    #error "__ALTIVEC__ flag not set, no support for Altivec"
+    #endif
+    #include <altivec.h>
+    #undef vector
+    #undef pixel
+    #undef bool
+    int main()
+    {
+    __vector double a, b, data1, data2;
+    const int n_vectors = sizeof(a)/sizeof(double);
+    double * ptr = reinterpret_cast<double*>(&a);
+    ptr[0] = static_cast<volatile double>(1.0);
+    for (int i=1; i<n_vectors; ++i)
+      ptr[i] = 0.0;
+    b = vec_splats (static_cast<volatile double>(2.25));
+    data1 = vec_add (a, b);
+    data2 = vec_mul (b, data1);
+    ptr = reinterpret_cast<double*>(&data2);
+    int return_value = 0;
+    if (ptr[0] != 7.3125)
+      return_value += 1;
+    for (int i=1; i<n_vectors; ++i)
+      if (ptr[i] != 5.0625)
+        return_value += 2;
+    b = vec_splats (static_cast<volatile double>(-1.0));
+    data1 = vec_abs(vec_mul (b, data2));
+    vec_vsx_st(data1, 0, ptr);
+    b = vec_vsx_ld(0, ptr);
+    ptr = reinterpret_cast<double*>(&b);
+    if (ptr[0] != 7.3125)
+      return_value += 4;
+    for (int i=1; i<n_vectors; ++i)
+      if (ptr[i] != 5.0625)
+        return_value += 8;
+    return return_value;
+    }
+    
+Performing C++ SOURCE FILE Test DEAL_II_HAVE_ARM_NEON failed with the following compile output:
+Change Dir: /home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_ba735/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_ba735.dir/build.make CMakeFiles/cmTC_ba735.dir/build
+gmake[1]: Entering directory '/home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_ba735.dir/src.cxx.o
+/usr/bin/c++ -DDEAL_II_HAVE_ARM_NEON   -o CMakeFiles/cmTC_ba735.dir/src.cxx.o -c /home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp/src.cxx
+/home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp/src.cxx:3:8: error: #error Preprocessor flag not found
+    3 |       #error Preprocessor flag not found
+      |        ^~~~~
+/home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp/src.cxx:5:16: fatal error: arm_neon.h: No such file or directory
+    5 |       #include <arm_neon.h>
+      |                ^~~~~~~~~~~~
+compilation terminated.
+gmake[1]: *** [CMakeFiles/cmTC_ba735.dir/build.make:78: CMakeFiles/cmTC_ba735.dir/src.cxx.o] Error 1
+gmake[1]: Leaving directory '/home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp'
+gmake: *** [Makefile:127: cmTC_ba735/fast] Error 2
+
+
+...and run output:
+
+Return value: 1
+Source file was:
+
+      #ifndef __ARM_NEON
+      #error Preprocessor flag not found
+      #endif
+      #include <arm_neon.h>
+      #include <stdlib.h>
+      int main()
+      {
+      float64x2_t a, b;
+      const unsigned int vector_bytes = sizeof(float64x2_t);
+      const int n_vectors = vector_bytes/sizeof(double);
+      float64x2_t * data =
+        reinterpret_cast<float64x2_t*>(aligned_alloc (vector_bytes, 2*vector_bytes));
+      double * ptr = reinterpret_cast<double*>(&a);
+      ptr[0] = static_cast<volatile double>(1.0);
+      for (int i=1; i<n_vectors; ++i)
+        ptr[i] = 0.0;
+      b = vdupq_n_f64 (static_cast<volatile double>(2.25));
+      data[0] = vaddq_f64 (a, b);
+      data[1] = vmulq_f64 (b, data[0]);
+      ptr = reinterpret_cast<double*>(&data[1]);
+      int return_value = 0;
+      if (ptr[0] != 7.3125)
+        return_value = 1;
+      for (int i=1; i<n_vectors; ++i)
+        if (ptr[i] != 5.0625)
+          return_value = 1;
+      free(data);
+      return return_value;
+      }
+      
+Performing C++ SOURCE FILE Test DEAL_II_HAVE_CXX20_FEATURES failed with the following output:
+Change Dir: /home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_bbcab/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_bbcab.dir/build.make CMakeFiles/cmTC_bbcab.dir/build
+gmake[1]: Entering directory '/home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_bbcab.dir/src.cxx.o
+/usr/bin/c++ -DDEAL_II_HAVE_CXX20_FEATURES  -fopenmp-simd -o CMakeFiles/cmTC_bbcab.dir/src.cxx.o -c /home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp/src.cxx
+/home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp/src.cxx:5:8: error: #error "insufficient support for C++20"
+    5 |     #  error "insufficient support for C++20"
+      |        ^~~~~
+/home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp/src.cxx:9:8: error: #error "insufficient support for C++20"
+    9 |     #  error "insufficient support for C++20"
+      |        ^~~~~
+/home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp/src.cxx:13:8: error: #error "insufficient support for C++20: __cpp_lib_type_identity not defined"
+   13 |     #  error "insufficient support for C++20: __cpp_lib_type_identity not defined"
+      |        ^~~~~
+/home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp/src.cxx:17:8: error: #error "insufficient support for C++20: __cpp_lib_type_identity is too old "
+   17 |     #  error "insufficient support for C++20: __cpp_lib_type_identity is too old "
+      |        ^~~~~
+/home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp/src.cxx:22:5: error: ‘concept’ does not name a type
+   22 |     concept is_valid_dim_spacedim = (dim >= 1 && spacedim <= 3 &&
+      |     ^~~~~~~
+/home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp/src.cxx:22:5: note: ‘concept’ only available with ‘-std=c++20’ or ‘-fconcepts’
+/home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp/src.cxx:26:5: error: ‘requires’ does not name a type
+   26 |     requires is_valid_dim_spacedim<dim,spacedim>
+      |     ^~~~~~~~
+/home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp/src.cxx:26:5: note: ‘requires’ only available with ‘-std=c++20’ or ‘-fconcepts’
+/home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp/src.cxx:30:5: error: ‘Triangulation’ does not name a type
+   30 |     Triangulation<1,3> t;
+      |     ^~~~~~~~~~~~~
+gmake[1]: *** [CMakeFiles/cmTC_bbcab.dir/build.make:78: CMakeFiles/cmTC_bbcab.dir/src.cxx.o] Error 1
+gmake[1]: Leaving directory '/home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp'
+gmake: *** [Makefile:127: cmTC_bbcab/fast] Error 2
+
+
+Source file was:
+
+    #include <version>
+
+    #if __cplusplus < 201709L && !defined(_MSC_VER) && !defined(__INTEL_COMPILER)
+    #  error "insufficient support for C++20"
+    #endif
+
+    #if !(defined __cpp_lib_ranges) || (__cpp_lib_ranges < 201911)
+    #  error "insufficient support for C++20"
+    #endif
+
+    #if !(defined __cpp_lib_type_identity)
+    #  error "insufficient support for C++20: __cpp_lib_type_identity not defined"
+    #endif
+
+    #if !(defined __cpp_lib_type_identity) || (__cpp_lib_type_identity < 201806)
+    #  error "insufficient support for C++20: __cpp_lib_type_identity is too old "
+    #endif
+
+    // Test concepts and requires clauses
+    template <int dim, int spacedim>
+    concept is_valid_dim_spacedim = (dim >= 1 && spacedim <= 3 &&
+                                     dim <= spacedim);
+
+    template <int dim, int spacedim>
+    requires is_valid_dim_spacedim<dim,spacedim>
+    class Triangulation
+    {};
+
+    Triangulation<1,3> t;
+
+
+    int main()
+    {
+    }
+    
+Performing C++ SOURCE FILE Test DEAL_II_HAVE_CXX23_FEATURES failed with the following output:
+Change Dir: /home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_e49c6/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_e49c6.dir/build.make CMakeFiles/cmTC_e49c6.dir/build
+gmake[1]: Entering directory '/home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_e49c6.dir/src.cxx.o
+/usr/bin/c++ -DDEAL_II_HAVE_CXX23_FEATURES  -fopenmp-simd -Werror -o CMakeFiles/cmTC_e49c6.dir/src.cxx.o -c /home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp/src.cxx
+/home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp/src.cxx:5:8: error: #error "insufficient support for C++23"
+    5 |     #  error "insufficient support for C++23"
+      |        ^~~~~
+/home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp/src.cxx:9:19: error: ‘static void Dummy::operator()()’ must be a non-static member function
+    9 |       static void operator()() {}
+      |                   ^~~~~~~~
+/home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp/src.cxx: In function ‘int main()’:
+/home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp/src.cxx:13:7: error: attributes at the beginning of statement are ignored [-Werror=attributes]
+   13 |       [[assume(2 > 1)]];
+      |       ^~~~~~~~~~~~~~~~~
+cc1plus: all warnings being treated as errors
+gmake[1]: *** [CMakeFiles/cmTC_e49c6.dir/build.make:78: CMakeFiles/cmTC_e49c6.dir/src.cxx.o] Error 1
+gmake[1]: Leaving directory '/home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp'
+gmake: *** [Makefile:127: cmTC_e49c6/fast] Error 2
+
+
+Source file was:
+
+    #include <version>
+
+    #if __cplusplus < 202100L && !defined(_MSC_VER) && !defined(__INTEL_COMPILER)
+    #  error "insufficient support for C++23"
+    #endif
+
+    struct Dummy {
+      static void operator()() {}
+    };
+
+    int main() {
+      [[assume(2 > 1)]];
+    }
+    
+Performing C++ SOURCE FILE Test DEAL_II_HAVE_FLAG_Wno_unused_command_line_argument failed with the following output:
+Change Dir: /home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_06da5/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_06da5.dir/build.make CMakeFiles/cmTC_06da5.dir/build
+gmake[1]: Entering directory '/home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_06da5.dir/src.cxx.o
+/usr/bin/c++ -DDEAL_II_HAVE_FLAG_Wno_unused_command_line_argument  -Werror   -Wunused-command-line-argument -std=c++17 -o CMakeFiles/cmTC_06da5.dir/src.cxx.o -c /home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp/src.cxx
+c++: error: unrecognized command-line option '-Wunused-command-line-argument'; did you mean '-Wunused-dummy-argument'?
+gmake[1]: *** [CMakeFiles/cmTC_06da5.dir/build.make:78: CMakeFiles/cmTC_06da5.dir/src.cxx.o] Error 1
+gmake[1]: Leaving directory '/home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp'
+gmake: *** [Makefile:127: cmTC_06da5/fast] Error 2
+
+
+Source file was:
+int main() { return 0; }
+Performing C++ SOURCE FILE Test DEAL_II_HAVE_COMPLEX_OPERATOR_OVERLOADS failed with the following output:
+Change Dir: /home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_88a62/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_88a62.dir/build.make CMakeFiles/cmTC_88a62.dir/build
+gmake[1]: Entering directory '/home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_88a62.dir/src.cxx.o
+/usr/bin/c++ -DDEAL_II_HAVE_COMPLEX_OPERATOR_OVERLOADS  -pedantic -Werror -std=c++17 -o CMakeFiles/cmTC_88a62.dir/src.cxx.o -c /home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp/src.cxx
+/home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp/src.cxx: In function ‘int main()’:
+/home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp/src.cxx:6:14: error: no match for ‘operator*’ (operand types are ‘double’ and ‘std::complex<float>’)
+    6 |     double() * std::complex<float>();
+In file included from /home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp/src.cxx:2:
+/usr/include/c++/11/complex:392:5: note: candidate: ‘template<class _Tp> std::complex<_Tp> std::operator*(const std::complex<_Tp>&, const std::complex<_Tp>&)’
+  392 |     operator*(const complex<_Tp>& __x, const complex<_Tp>& __y)
+      |     ^~~~~~~~
+/usr/include/c++/11/complex:392:5: note:   template argument deduction/substitution failed:
+/home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp/src.cxx:6:36: note:   mismatched types ‘const std::complex<_Tp>’ and ‘double’
+    6 |     double() * std::complex<float>();
+      |                                    ^
+In file included from /home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp/src.cxx:2:
+/usr/include/c++/11/complex:401:5: note: candidate: ‘template<class _Tp> std::complex<_Tp> std::operator*(const std::complex<_Tp>&, const _Tp&)’
+  401 |     operator*(const complex<_Tp>& __x, const _Tp& __y)
+      |     ^~~~~~~~
+/usr/include/c++/11/complex:401:5: note:   template argument deduction/substitution failed:
+/home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp/src.cxx:6:36: note:   mismatched types ‘const std::complex<_Tp>’ and ‘double’
+    6 |     double() * std::complex<float>();
+      |                                    ^
+In file included from /home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp/src.cxx:2:
+/usr/include/c++/11/complex:410:5: note: candidate: ‘template<class _Tp> std::complex<_Tp> std::operator*(const _Tp&, const std::complex<_Tp>&)’
+  410 |     operator*(const _Tp& __x, const complex<_Tp>& __y)
+      |     ^~~~~~~~
+/usr/include/c++/11/complex:410:5: note:   template argument deduction/substitution failed:
+/home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp/src.cxx:6:36: note:   deduced conflicting types for parameter ‘_Tp’ (‘double’ and ‘float’)
+    6 |     double() * std::complex<float>();
+      |                                    ^
+/home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp/src.cxx:7:27: error: no match for ‘operator*’ (operand types are ‘std::complex<float>’ and ‘double’)
+    7 |     std::complex<float>() * double();
+In file included from /home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp/src.cxx:2:
+/usr/include/c++/11/complex:392:5: note: candidate: ‘template<class _Tp> std::complex<_Tp> std::operator*(const std::complex<_Tp>&, const std::complex<_Tp>&)’
+  392 |     operator*(const complex<_Tp>& __x, const complex<_Tp>& __y)
+      |     ^~~~~~~~
+/usr/include/c++/11/complex:392:5: note:   template argument deduction/substitution failed:
+/home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp/src.cxx:7:36: note:   mismatched types ‘const std::complex<_Tp>’ and ‘double’
+    7 |     std::complex<float>() * double();
+      |                                    ^
+In file included from /home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp/src.cxx:2:
+/usr/include/c++/11/complex:401:5: note: candidate: ‘template<class _Tp> std::complex<_Tp> std::operator*(const std::complex<_Tp>&, const _Tp&)’
+  401 |     operator*(const complex<_Tp>& __x, const _Tp& __y)
+      |     ^~~~~~~~
+/usr/include/c++/11/complex:401:5: note:   template argument deduction/substitution failed:
+/home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp/src.cxx:7:36: note:   deduced conflicting types for parameter ‘const _Tp’ (‘float’ and ‘double’)
+    7 |     std::complex<float>() * double();
+      |                                    ^
+In file included from /home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp/src.cxx:2:
+/usr/include/c++/11/complex:410:5: note: candidate: ‘template<class _Tp> std::complex<_Tp> std::operator*(const _Tp&, const std::complex<_Tp>&)’
+  410 |     operator*(const _Tp& __x, const complex<_Tp>& __y)
+      |     ^~~~~~~~
+/usr/include/c++/11/complex:410:5: note:   template argument deduction/substitution failed:
+/home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp/src.cxx:7:36: note:   mismatched types ‘const std::complex<_Tp>’ and ‘double’
+    7 |     std::complex<float>() * double();
+      |                                    ^
+/home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp/src.cxx:8:13: error: no match for ‘operator*’ (operand types are ‘float’ and ‘std::complex<double>’)
+    8 |     float() * std::complex<double>();
+In file included from /home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp/src.cxx:2:
+/usr/include/c++/11/complex:392:5: note: candidate: ‘template<class _Tp> std::complex<_Tp> std::operator*(const std::complex<_Tp>&, const std::complex<_Tp>&)’
+  392 |     operator*(const complex<_Tp>& __x, const complex<_Tp>& __y)
+      |     ^~~~~~~~
+/usr/include/c++/11/complex:392:5: note:   template argument deduction/substitution failed:
+/home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp/src.cxx:8:36: note:   mismatched types ‘const std::complex<_Tp>’ and ‘float’
+    8 |     float() * std::complex<double>();
+      |                                    ^
+In file included from /home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp/src.cxx:2:
+/usr/include/c++/11/complex:401:5: note: candidate: ‘template<class _Tp> std::complex<_Tp> std::operator*(const std::complex<_Tp>&, const _Tp&)’
+  401 |     operator*(const complex<_Tp>& __x, const _Tp& __y)
+      |     ^~~~~~~~
+/usr/include/c++/11/complex:401:5: note:   template argument deduction/substitution failed:
+/home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp/src.cxx:8:36: note:   mismatched types ‘const std::complex<_Tp>’ and ‘float’
+    8 |     float() * std::complex<double>();
+      |                                    ^
+In file included from /home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp/src.cxx:2:
+/usr/include/c++/11/complex:410:5: note: candidate: ‘template<class _Tp> std::complex<_Tp> std::operator*(const _Tp&, const std::complex<_Tp>&)’
+  410 |     operator*(const _Tp& __x, const complex<_Tp>& __y)
+      |     ^~~~~~~~
+/usr/include/c++/11/complex:410:5: note:   template argument deduction/substitution failed:
+/home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp/src.cxx:8:36: note:   deduced conflicting types for parameter ‘_Tp’ (‘float’ and ‘double’)
+    8 |     float() * std::complex<double>();
+      |                                    ^
+/home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp/src.cxx:9:28: error: no match for ‘operator*’ (operand types are ‘std::complex<double>’ and ‘float’)
+    9 |     std::complex<double>() * float();
+In file included from /home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp/src.cxx:2:
+/usr/include/c++/11/complex:392:5: note: candidate: ‘template<class _Tp> std::complex<_Tp> std::operator*(const std::complex<_Tp>&, const std::complex<_Tp>&)’
+  392 |     operator*(const complex<_Tp>& __x, const complex<_Tp>& __y)
+      |     ^~~~~~~~
+/usr/include/c++/11/complex:392:5: note:   template argument deduction/substitution failed:
+/home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp/src.cxx:9:36: note:   mismatched types ‘const std::complex<_Tp>’ and ‘float’
+    9 |     std::complex<double>() * float();
+      |                                    ^
+In file included from /home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp/src.cxx:2:
+/usr/include/c++/11/complex:401:5: note: candidate: ‘template<class _Tp> std::complex<_Tp> std::operator*(const std::complex<_Tp>&, const _Tp&)’
+  401 |     operator*(const complex<_Tp>& __x, const _Tp& __y)
+      |     ^~~~~~~~
+/usr/include/c++/11/complex:401:5: note:   template argument deduction/substitution failed:
+/home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp/src.cxx:9:36: note:   deduced conflicting types for parameter ‘const _Tp’ (‘double’ and ‘float’)
+    9 |     std::complex<double>() * float();
+      |                                    ^
+In file included from /home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp/src.cxx:2:
+/usr/include/c++/11/complex:410:5: note: candidate: ‘template<class _Tp> std::complex<_Tp> std::operator*(const _Tp&, const std::complex<_Tp>&)’
+  410 |     operator*(const _Tp& __x, const complex<_Tp>& __y)
+      |     ^~~~~~~~
+/usr/include/c++/11/complex:410:5: note:   template argument deduction/substitution failed:
+/home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp/src.cxx:9:36: note:   mismatched types ‘const std::complex<_Tp>’ and ‘float’
+    9 |     std::complex<double>() * float();
+      |                                    ^
+/home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp/src.cxx:10:28: error: no match for ‘operator*’ (operand types are ‘std::complex<double>’ and ‘std::complex<float>’)
+   10 |     std::complex<double>() * std::complex<float>();
+      |          ~~~~~~~~~~~~~~~~~ ^      ~~~~~~~~~~~~~~~~
+      |          |                        |
+      |          complex<double>          complex<float>
+In file included from /home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp/src.cxx:2:
+/usr/include/c++/11/complex:392:5: note: candidate: ‘template<class _Tp> std::complex<_Tp> std::operator*(const std::complex<_Tp>&, const std::complex<_Tp>&)’
+  392 |     operator*(const complex<_Tp>& __x, const complex<_Tp>& __y)
+      |     ^~~~~~~~
+/usr/include/c++/11/complex:392:5: note:   template argument deduction/substitution failed:
+/home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp/src.cxx:10:50: note:   deduced conflicting types for parameter ‘_Tp’ (‘double’ and ‘float’)
+   10 |     std::complex<double>() * std::complex<float>();
+      |                                                  ^
+In file included from /home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp/src.cxx:2:
+/usr/include/c++/11/complex:401:5: note: candidate: ‘template<class _Tp> std::complex<_Tp> std::operator*(const std::complex<_Tp>&, const _Tp&)’
+  401 |     operator*(const complex<_Tp>& __x, const _Tp& __y)
+      |     ^~~~~~~~
+/usr/include/c++/11/complex:401:5: note:   template argument deduction/substitution failed:
+/home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp/src.cxx:10:50: note:   deduced conflicting types for parameter ‘const _Tp’ (‘double’ and ‘std::complex<float>’)
+   10 |     std::complex<double>() * std::complex<float>();
+      |                                                  ^
+In file included from /home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp/src.cxx:2:
+/usr/include/c++/11/complex:410:5: note: candidate: ‘template<class _Tp> std::complex<_Tp> std::operator*(const _Tp&, const std::complex<_Tp>&)’
+  410 |     operator*(const _Tp& __x, const complex<_Tp>& __y)
+      |     ^~~~~~~~
+/usr/include/c++/11/complex:410:5: note:   template argument deduction/substitution failed:
+/home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp/src.cxx:10:50: note:   deduced conflicting types for parameter ‘_Tp’ (‘std::complex<double>’ and ‘float’)
+   10 |     std::complex<double>() * std::complex<float>();
+      |                                                  ^
+/home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp/src.cxx:11:27: error: no match for ‘operator*’ (operand types are ‘std::complex<float>’ and ‘std::complex<double>’)
+   11 |     std::complex<float>() * std::complex<double>();
+      |          ~~~~~~~~~~~~~~~~ ^      ~~~~~~~~~~~~~~~~~
+      |          |                       |
+      |          complex<float>          complex<double>
+In file included from /home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp/src.cxx:2:
+/usr/include/c++/11/complex:392:5: note: candidate: ‘template<class _Tp> std::complex<_Tp> std::operator*(const std::complex<_Tp>&, const std::complex<_Tp>&)’
+  392 |     operator*(const complex<_Tp>& __x, const complex<_Tp>& __y)
+      |     ^~~~~~~~
+/usr/include/c++/11/complex:392:5: note:   template argument deduction/substitution failed:
+/home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp/src.cxx:11:50: note:   deduced conflicting types for parameter ‘_Tp’ (‘float’ and ‘double’)
+   11 |     std::complex<float>() * std::complex<double>();
+      |                                                  ^
+In file included from /home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp/src.cxx:2:
+/usr/include/c++/11/complex:401:5: note: candidate: ‘template<class _Tp> std::complex<_Tp> std::operator*(const std::complex<_Tp>&, const _Tp&)’
+  401 |     operator*(const complex<_Tp>& __x, const _Tp& __y)
+      |     ^~~~~~~~
+/usr/include/c++/11/complex:401:5: note:   template argument deduction/substitution failed:
+/home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp/src.cxx:11:50: note:   deduced conflicting types for parameter ‘const _Tp’ (‘float’ and ‘std::complex<double>’)
+   11 |     std::complex<float>() * std::complex<double>();
+      |                                                  ^
+In file included from /home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp/src.cxx:2:
+/usr/include/c++/11/complex:410:5: note: candidate: ‘template<class _Tp> std::complex<_Tp> std::operator*(const _Tp&, const std::complex<_Tp>&)’
+  410 |     operator*(const _Tp& __x, const complex<_Tp>& __y)
+      |     ^~~~~~~~
+/usr/include/c++/11/complex:410:5: note:   template argument deduction/substitution failed:
+/home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp/src.cxx:11:50: note:   deduced conflicting types for parameter ‘_Tp’ (‘std::complex<float>’ and ‘double’)
+   11 |     std::complex<float>() * std::complex<double>();
+      |                                                  ^
+gmake[1]: *** [CMakeFiles/cmTC_88a62.dir/build.make:78: CMakeFiles/cmTC_88a62.dir/src.cxx.o] Error 1
+gmake[1]: Leaving directory '/home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp'
+gmake: *** [Makefile:127: cmTC_88a62/fast] Error 2
+
+
+Source file was:
+
+  #include <complex>
+
+  int main()
+  {
+    double() * std::complex<float>();
+    std::complex<float>() * double();
+    float() * std::complex<double>();
+    std::complex<double>() * float();
+    std::complex<double>() * std::complex<float>();
+    std::complex<float>() * std::complex<double>();
+
+    return 0;
+  }
+  
+Performing C++ SOURCE FILE Test DEAL_II_COMPILER_HAS_FUSE_LD_MOLD failed with the following output:
+Change Dir: /home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_73b99/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_73b99.dir/build.make CMakeFiles/cmTC_73b99.dir/build
+gmake[1]: Entering directory '/home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_73b99.dir/src.cxx.o
+/usr/bin/c++ -DDEAL_II_COMPILER_HAS_FUSE_LD_MOLD  -Werror -shared -fPIC -fuse-ld=mold -std=c++17 -o CMakeFiles/cmTC_73b99.dir/src.cxx.o -c /home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp/src.cxx
+Linking CXX executable cmTC_73b99
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_73b99.dir/link.txt --verbose=1
+/usr/bin/c++  -Werror -shared -fPIC -fuse-ld=mold CMakeFiles/cmTC_73b99.dir/src.cxx.o -o cmTC_73b99 
+collect2: fatal error: cannot find ‘ld’
+compilation terminated.
+gmake[1]: *** [CMakeFiles/cmTC_73b99.dir/build.make:99: cmTC_73b99] Error 1
+gmake[1]: Leaving directory '/home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp'
+gmake: *** [Makefile:127: cmTC_73b99/fast] Error 2
+
+
+Source file was:
+
+    #include <iostream>
+    void foo() { std::cout << "Hello, world!" << std::endl; }
+    
+Performing C++ SOURCE FILE Test DEAL_II_COMPILER_HAS_FUSE_LD_LLD failed with the following output:
+Change Dir: /home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_e209c/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_e209c.dir/build.make CMakeFiles/cmTC_e209c.dir/build
+gmake[1]: Entering directory '/home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_e209c.dir/src.cxx.o
+/usr/bin/c++ -DDEAL_II_COMPILER_HAS_FUSE_LD_LLD  -Werror -shared -fPIC -fuse-ld=lld -std=c++17 -o CMakeFiles/cmTC_e209c.dir/src.cxx.o -c /home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp/src.cxx
+Linking CXX executable cmTC_e209c
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_e209c.dir/link.txt --verbose=1
+/usr/bin/c++  -Werror -shared -fPIC -fuse-ld=lld CMakeFiles/cmTC_e209c.dir/src.cxx.o -o cmTC_e209c 
+collect2: fatal error: cannot find ‘ld’
+compilation terminated.
+gmake[1]: *** [CMakeFiles/cmTC_e209c.dir/build.make:99: cmTC_e209c] Error 1
+gmake[1]: Leaving directory '/home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp'
+gmake: *** [Makefile:127: cmTC_e209c/fast] Error 2
+
+
+Source file was:
+
+    #include <iostream>
+    void foo() { std::cout << "Hello, world!" << std::endl; }
+    
+Determining if the Fortran sgemm exists failed with the following output:
+Change Dir: /home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_2cad2/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_2cad2.dir/build.make CMakeFiles/cmTC_2cad2.dir/build
+gmake[1]: Entering directory '/home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp'
+Building Fortran object CMakeFiles/cmTC_2cad2.dir/testFortranCompiler.f.o
+/usr/bin/gfortran    -c /home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp/testFortranCompiler.f -o CMakeFiles/cmTC_2cad2.dir/testFortranCompiler.f.o
+Linking Fortran executable cmTC_2cad2
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_2cad2.dir/link.txt --verbose=1
+/usr/bin/gfortran CMakeFiles/cmTC_2cad2.dir/testFortranCompiler.f.o -o cmTC_2cad2 
+/usr/bin/ld: CMakeFiles/cmTC_2cad2.dir/testFortranCompiler.f.o: in function `MAIN__':
+testFortranCompiler.f:(.text+0xa): undefined reference to `sgemm_'
+collect2: error: ld returned 1 exit status
+gmake[1]: *** [CMakeFiles/cmTC_2cad2.dir/build.make:99: cmTC_2cad2] Error 1
+gmake[1]: Leaving directory '/home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp'
+gmake: *** [Makefile:127: cmTC_2cad2/fast] Error 2
+
+
+
+Performing C++ SOURCE FILE Test MKL_SYMBOL_CHECK failed with the following output:
+Change Dir: /home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_91976/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_91976.dir/build.make CMakeFiles/cmTC_91976.dir/build
+gmake[1]: Entering directory '/home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_91976.dir/src.cxx.o
+/usr/bin/c++ -DMKL_SYMBOL_CHECK  -std=c++17 -o CMakeFiles/cmTC_91976.dir/src.cxx.o -c /home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp/src.cxx
+/home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp/src.cxx:2:14: fatal error: mkl.h: No such file or directory
+    2 |     #include <mkl.h>
+      |              ^~~~~~~
+compilation terminated.
+gmake[1]: *** [CMakeFiles/cmTC_91976.dir/build.make:78: CMakeFiles/cmTC_91976.dir/src.cxx.o] Error 1
+gmake[1]: Leaving directory '/home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp'
+gmake: *** [Makefile:127: cmTC_91976/fast] Error 2
+
+
+Source file was:
+
+    #include <mkl.h>
+    #include <vector>
+    int main(){
+      const int m = 5;
+      const int n = 2;
+      std::vector<double> A(m*n,0.);
+      std::vector<double> B(m*n,0.);
+      mkl_domatcopy('C', 'T', m, n, 1., A.data(), n, B.data(), m);
+      return 0;
+    }
+Performing C++ SOURCE FILE Test DEAL_II_BOOST_HAS_BROKEN_HEADER_DEPRECATIONS_OK failed with the following output:
+Change Dir: /home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_6c93d/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_6c93d.dir/build.make CMakeFiles/cmTC_6c93d.dir/build
+gmake[1]: Entering directory '/home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_6c93d.dir/src.cxx.o
+/usr/bin/c++ -DDEAL_II_BOOST_HAS_BROKEN_HEADER_DEPRECATIONS_OK  -std=c++17 -o CMakeFiles/cmTC_6c93d.dir/src.cxx.o -c /home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp/src.cxx
+In file included from /usr/include/boost/geometry/index/detail/varray_detail.hpp:45,
+                 from /usr/include/boost/geometry/index/detail/varray.hpp:41,
+                 from /usr/include/boost/geometry/index/detail/rtree/node/node.hpp:19,
+                 from /usr/include/boost/geometry/index/rtree.hpp:61,
+                 from /home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp/src.cxx:4:
+/usr/include/boost/detail/no_exceptions_support.hpp:17:65: error: _Pragma takes a parenthesized string literal
+   17 | BOOST_HEADER_DEPRECATED("<boost/core/no_exceptions_support.hpp>")
+      |                                                                 ^
+/home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp/src.cxx:3:40: error: ‘_Pragma’ does not name a type
+    3 |     #define BOOST_HEADER_DEPRECATED(a) _Pragma("GCC error "stop compilation"");
+      |                                        ^~~~~~~
+gmake[1]: *** [CMakeFiles/cmTC_6c93d.dir/build.make:78: CMakeFiles/cmTC_6c93d.dir/src.cxx.o] Error 1
+gmake[1]: Leaving directory '/home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp'
+gmake: *** [Makefile:127: cmTC_6c93d/fast] Error 2
+
+
+Source file was:
+
+    #define BOOST_CONFIG_HEADER_DEPRECATED_HPP_INCLUDED
+    #define BOOST_HEADER_DEPRECATED(a) _Pragma("GCC error "stop compilation"");
+    #include <boost/geometry/index/rtree.hpp>
+    int main() { return 0; }
+    
+Performing C++ SOURCE FILE Test TRILINOS_TPETRA_IS_FUNCTIONAL failed with the following output:
+Change Dir: /home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_1eb73/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_1eb73.dir/build.make CMakeFiles/cmTC_1eb73.dir/build
+gmake[1]: Entering directory '/home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_1eb73.dir/src.cxx.o
+/usr/bin/c++ -DTRILINOS_TPETRA_IS_FUNCTIONAL -I/usr/include/trilinos -I/usr/lib/x86_64-linux-gnu/openmpi/include -I/usr/lib/x86_64-linux-gnu/openmpi/include/openmpi -fopenmp-simd -rdynamic -fuse-ld=gold -std=c++17 -o CMakeFiles/cmTC_1eb73.dir/src.cxx.o -c /home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp/src.cxx
+Linking CXX executable cmTC_1eb73
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_1eb73.dir/link.txt --verbose=1
+/usr/bin/c++  -fopenmp-simd -rdynamic -fuse-ld=gold CMakeFiles/cmTC_1eb73.dir/src.cxx.o -o cmTC_1eb73  -Wl,-rpath,/usr/lib/x86_64-linux-gnu/openmpi/lib:/usr/lib/x86_64-linux-gnu/hdf5/openmpi /usr/lib/x86_64-linux-gnu/libtrilinos_pike-blackbox.so.13.2 /usr/lib/x86_64-linux-gnu/libtrilinos_trilinoscouplings.so.13.2 /usr/lib/x86_64-linux-gnu/libtrilinos_piro.so.13.2 /usr/lib/x86_64-linux-gnu/libtrilinos_rol.so.13.2 /usr/lib/x86_64-linux-gnu/libtrilinos_stokhos_muelu.so.13.2 /usr/lib/x86_64-linux-gnu/libtrilinos_stokhos_muelu_pce_serial.so.13.2 /usr/lib/x86_64-linux-gnu/libtrilinos_stokhos_muelu_mp_16_serial.so.13.2 /usr/lib/x86_64-linux-gnu/libtrilinos_stokhos_ifpack2.so.13.2 /usr/lib/x86_64-linux-gnu/libtrilinos_stokhos_ifpack2_pce_serial.so.13.2 /usr/lib/x86_64-linux-gnu/libtrilinos_stokhos_ifpack2_mp_16_serial.so.13.2 /usr/lib/x86_64-linux-gnu/libtrilinos_stokhos_amesos2.so.13.2 /usr/lib/x86_64-linux-gnu/libtrilinos_stokhos_xpetra.so.13.2 /usr/lib/x86_64-linux-gnu/libtrilinos_stokhos_xpetra_pce_serial.so.13.2 /usr/lib/x86_64-linux-gnu/libtrilinos_stokhos_xpetra_mp_16_serial.so.13.2 /usr/lib/x86_64-linux-gnu/libtrilinos_stokhos_tpetra.so.13.2 /usr/lib/x86_64-linux-gnu/libtrilinos_stokhos_tpetraext_pce_serial.so.13.2 /usr/lib/x86_64-linux-gnu/libtrilinos_stokhos_tpetra_pce_serial.so.13.2 /usr/lib/x86_64-linux-gnu/libtrilinos_stokhos_tpetra_sd_pce_serial.so.13.2 /usr/lib/x86_64-linux-gnu/libtrilinos_stokhos_tpetraext_mp_16_serial.so.13.2 /usr/lib/x86_64-linux-gnu/libtrilinos_stokhos_tpetra_mp_16_serial.so.13.2 /usr/lib/x86_64-linux-gnu/libtrilinos_stokhos_tpetra_sd_mp_16_serial.so.13.2 /usr/lib/x86_64-linux-gnu/libtrilinos_stokhos_sacado.so.13.2 /usr/lib/x86_64-linux-gnu/libtrilinos_stokhos.so.13.2 /usr/lib/x86_64-linux-gnu/libtrilinos_rythmos.so.13.2 /usr/lib/x86_64-linux-gnu/libtrilinos_shylu_ddcommon.so.13.2 /usr/lib/x86_64-linux-gnu/libtrilinos_shylu_ddfrosch.so.13.2 /usr/lib/x86_64-linux-gnu/libtrilinos_shylu_ddbddc.so.13.2 /usr/lib/x86_64-linux-gnu/libtrilinos_zoltan2sphynx.so.13.2 /usr/lib/x86_64-linux-gnu/libtrilinos_muelu-adapters.so.13.2 /usr/lib/x86_64-linux-gnu/libtrilinos_muelu-interface.so.13.2 /usr/lib/x86_64-linux-gnu/libtrilinos_muelu.so.13.2 /usr/lib/x86_64-linux-gnu/libtrilinos_moertel.so.13.2 /usr/lib/x86_64-linux-gnu/libtrilinos_locatpetra.so.13.2 /usr/lib/x86_64-linux-gnu/libtrilinos_locathyra.so.13.2 /usr/lib/x86_64-linux-gnu/libtrilinos_locaepetra.so.13.2 /usr/lib/x86_64-linux-gnu/libtrilinos_localapack.so.13.2 /usr/lib/x86_64-linux-gnu/libtrilinos_loca.so.13.2 /usr/lib/x86_64-linux-gnu/libtrilinos_noxepetra.so.13.2 /usr/lib/x86_64-linux-gnu/libtrilinos_noxlapack.so.13.2 /usr/lib/x86_64-linux-gnu/libtrilinos_nox.so.13.2 /usr/lib/x86_64-linux-gnu/libtrilinos_phalanx.so.13.2 /usr/lib/x86_64-linux-gnu/libtrilinos_intrepid2.so.13.2 /usr/lib/x86_64-linux-gnu/libtrilinos_intrepid.so.13.2 /usr/lib/x86_64-linux-gnu/libtrilinos_teko.so.13.2 /usr/lib/x86_64-linux-gnu/libtrilinos_stratimikos.so.13.2 /usr/lib/x86_64-linux-gnu/libtrilinos_stratimikosbelos.so.13.2 /usr/lib/x86_64-linux-gnu/libtrilinos_stratimikosamesos2.so.13.2 /usr/lib/x86_64-linux-gnu/libtrilinos_stratimikosaztecoo.so.13.2 /usr/lib/x86_64-linux-gnu/libtrilinos_stratimikosamesos.so.13.2 /usr/lib/x86_64-linux-gnu/libtrilinos_stratimikosml.so.13.2 /usr/lib/x86_64-linux-gnu/libtrilinos_stratimikosifpack.so.13.2 /usr/lib/x86_64-linux-gnu/libtrilinos_ifpack2-adapters.so.13.2 /usr/lib/x86_64-linux-gnu/libtrilinos_ifpack2.so.13.2 /usr/lib/x86_64-linux-gnu/libtrilinos_anasazitpetra.so.13.2 /usr/lib/x86_64-linux-gnu/libtrilinos_ModeLaplace.so.13.2 /usr/lib/x86_64-linux-gnu/libtrilinos_anasaziepetra.so.13.2 /usr/lib/x86_64-linux-gnu/libtrilinos_anasazi.so.13.2 /usr/lib/x86_64-linux-gnu/libtrilinos_komplex.so.13.2 /usr/lib/x86_64-linux-gnu/libtrilinos_amesos2.so.13.2 /usr/lib/x86_64-linux-gnu/libtrilinos_tacho.so.13.2 /usr/lib/x86_64-linux-gnu/libtrilinos_shylu_nodehts.so.13.2 /usr/lib/x86_64-linux-gnu/libtrilinos_belosxpetra.so.13.2 /usr/lib/x86_64-linux-gnu/libtrilinos_belostpetra.so.13.2 /usr/lib/x86_64-linux-gnu/libtrilinos_belosepetra.so.13.2 /usr/lib/x86_64-linux-gnu/libtrilinos_belos.so.13.2 /usr/lib/x86_64-linux-gnu/libtrilinos_ml.so.13.2 /usr/lib/x86_64-linux-gnu/libtrilinos_ifpack.so.13.2 /usr/lib/x86_64-linux-gnu/libtrilinos_zoltan2.so.13.2 /usr/lib/x86_64-linux-gnu/libtrilinos_pamgen_extras.so.13.2 /usr/lib/x86_64-linux-gnu/libtrilinos_pamgen.so.13.2 /usr/lib/x86_64-linux-gnu/libtrilinos_amesos.so.13.2 /usr/lib/x86_64-linux-gnu/libtrilinos_galeri-xpetra.so.13.2 /usr/lib/x86_64-linux-gnu/libtrilinos_galeri-epetra.so.13.2 /usr/lib/x86_64-linux-gnu/libtrilinos_aztecoo.so.13.2 /usr/lib/x86_64-linux-gnu/libtrilinos_dpliris.so.13.2 /usr/lib/x86_64-linux-gnu/libtrilinos_isorropia.so.13.2 /usr/lib/x86_64-linux-gnu/libtrilinos_xpetra-sup.so.13.2 /usr/lib/x86_64-linux-gnu/libtrilinos_xpetra.so.13.2 /usr/lib/x86_64-linux-gnu/libtrilinos_thyratpetra.so.13.2 /usr/lib/x86_64-linux-gnu/libtrilinos_thyraepetraext.so.13.2 /usr/lib/x86_64-linux-gnu/libtrilinos_thyraepetra.so.13.2 /usr/lib/x86_64-linux-gnu/libtrilinos_thyracore.so.13.2 /usr/lib/x86_64-linux-gnu/libtrilinos_trilinosss.so.13.2 /usr/lib/x86_64-linux-gnu/libtrilinos_tpetraext.so.13.2 /usr/lib/x86_64-linux-gnu/libtrilinos_tpetrainout.so.13.2 /usr/lib/x86_64-linux-gnu/libtrilinos_tpetra.so.13.2 /usr/lib/x86_64-linux-gnu/libtrilinos_kokkostsqr.so.13.2 /usr/lib/x86_64-linux-gnu/libtrilinos_tpetraclassiclinalg.so.13.2 /usr/lib/x86_64-linux-gnu/libtrilinos_tpetraclassicnodeapi.so.13.2 /usr/lib/x86_64-linux-gnu/libtrilinos_tpetraclassic.so.13.2 /usr/lib/x86_64-linux-gnu/libtrilinos_epetraext.so.13.2 /usr/lib/x86_64-linux-gnu/libtrilinos_triutils.so.13.2 /usr/lib/x86_64-linux-gnu/libtrilinos_shards.so.13.2 /usr/lib/x86_64-linux-gnu/libtrilinos_zoltan.so.13.2 /usr/lib/x86_64-linux-gnu/libtrilinos_epetra.so.13.2 /usr/lib/x86_64-linux-gnu/libtrilinos_sacado.so.13.2 /usr/lib/x86_64-linux-gnu/libtrilinos_rtop.so.13.2 /usr/lib/x86_64-linux-gnu/libtrilinos_kokkoskernels.so.13.2 /usr/lib/x86_64-linux-gnu/libtrilinos_teuchoskokkoscomm.so.13.2 /usr/lib/x86_64-linux-gnu/libtrilinos_teuchoskokkoscompat.so.13.2 /usr/lib/x86_64-linux-gnu/libtrilinos_teuchosremainder.so.13.2 /usr/lib/x86_64-linux-gnu/libtrilinos_teuchosnumerics.so.13.2 /usr/lib/x86_64-linux-gnu/libtrilinos_teuchoscomm.so.13.2 /usr/lib/x86_64-linux-gnu/libtrilinos_teuchosparameterlist.so.13.2 /usr/lib/x86_64-linux-gnu/libtrilinos_teuchosparser.so.13.2 /usr/lib/x86_64-linux-gnu/libtrilinos_teuchoscore.so.13.2 /usr/lib/x86_64-linux-gnu/libtrilinos_kokkosalgorithms.so.13.2 /usr/lib/x86_64-linux-gnu/libtrilinos_kokkoscontainers.so.13.2 /usr/lib/x86_64-linux-gnu/libtrilinos_kokkoscore.so.13.2 /usr/lib/x86_64-linux-gnu/openmpi/lib/libmpi_cxx.so /usr/lib/x86_64-linux-gnu/libmpi_usempif08.so /usr/lib/x86_64-linux-gnu/libmpi_usempi_ignore_tkr.so /usr/lib/x86_64-linux-gnu/libmpi_mpifh.so /usr/lib/x86_64-linux-gnu/libopen-rte.so /usr/lib/x86_64-linux-gnu/libopen-pal.so /usr/lib/x86_64-linux-gnu/libhwloc.so /usr/lib/x86_64-linux-gnu/libevent_core.so /usr/lib/x86_64-linux-gnu/libevent_pthreads.so -lm /usr/lib/x86_64-linux-gnu/libz.so /usr/lib/x86_64-linux-gnu/openmpi/lib/libmpi.so /usr/lib/x86_64-linux-gnu/libtbb.so /usr/lib/x86_64-linux-gnu/libptscotch.so /usr/lib/x86_64-linux-gnu/libptscotcherr.so /usr/lib/x86_64-linux-gnu/libscotch.so /usr/lib/x86_64-linux-gnu/libscotcherr.so -lm /usr/lib/x86_64-linux-gnu/libsmumps.so /usr/lib/x86_64-linux-gnu/libdmumps.so /usr/lib/x86_64-linux-gnu/libcmumps.so /usr/lib/x86_64-linux-gnu/libzmumps.so /usr/lib/x86_64-linux-gnu/libmumps_common.so /usr/lib/x86_64-linux-gnu/libpord.so /usr/lib/x86_64-linux-gnu/libmumps_common.so /usr/lib/x86_64-linux-gnu/libpord.so /usr/lib/x86_64-linux-gnu/hdf5/openmpi/libhdf5.so /usr/lib/x86_64-linux-gnu/libdl.a /usr/lib/x86_64-linux-gnu/liblapack.so /usr/lib/x86_64-linux-gnu/libblas.so /usr/lib/x86_64-linux-gnu/libz.so 
+CMakeFiles/cmTC_1eb73.dir/src.cxx.o:src.cxx:function main: error: undefined reference to 'Tpetra::Map<int, int, Kokkos::Compat::KokkosDeviceWrapperNode<Kokkos::Serial, Kokkos::HostSpace> >::Map()'
+CMakeFiles/cmTC_1eb73.dir/src.cxx.o:src.cxx:function main: error: undefined reference to 'Tpetra::Vector<double, int, int, Kokkos::Compat::KokkosDeviceWrapperNode<Kokkos::Serial, Kokkos::HostSpace> >::Vector(Teuchos::RCP<Tpetra::Map<int, int, Kokkos::Compat::KokkosDeviceWrapperNode<Kokkos::Serial, Kokkos::HostSpace> > const> const&, bool)'
+CMakeFiles/cmTC_1eb73.dir/src.cxx.o:src.cxx:vtable for Tpetra::Vector<double, int, int, Kokkos::Compat::KokkosDeviceWrapperNode<Kokkos::Serial, Kokkos::HostSpace> >: error: undefined reference to 'Tpetra::Vector<double, int, int, Kokkos::Compat::KokkosDeviceWrapperNode<Kokkos::Serial, Kokkos::HostSpace> >::description[abi:cxx11]() const'
+CMakeFiles/cmTC_1eb73.dir/src.cxx.o:src.cxx:vtable for Tpetra::Vector<double, int, int, Kokkos::Compat::KokkosDeviceWrapperNode<Kokkos::Serial, Kokkos::HostSpace> >: error: undefined reference to 'Tpetra::Vector<double, int, int, Kokkos::Compat::KokkosDeviceWrapperNode<Kokkos::Serial, Kokkos::HostSpace> >::describe(Teuchos::basic_FancyOStream<char, std::char_traits<char> >&, Teuchos::EVerbosityLevel) const'
+CMakeFiles/cmTC_1eb73.dir/src.cxx.o:src.cxx:vtable for Tpetra::Vector<double, int, int, Kokkos::Compat::KokkosDeviceWrapperNode<Kokkos::Serial, Kokkos::HostSpace> >: error: undefined reference to 'Tpetra::MultiVector<double, int, int, Kokkos::Compat::KokkosDeviceWrapperNode<Kokkos::Serial, Kokkos::HostSpace> >::removeEmptyProcessesInPlace(Teuchos::RCP<Tpetra::Map<int, int, Kokkos::Compat::KokkosDeviceWrapperNode<Kokkos::Serial, Kokkos::HostSpace> > const> const&)'
+CMakeFiles/cmTC_1eb73.dir/src.cxx.o:src.cxx:vtable for Tpetra::Vector<double, int, int, Kokkos::Compat::KokkosDeviceWrapperNode<Kokkos::Serial, Kokkos::HostSpace> >: error: undefined reference to 'Tpetra::MultiVector<double, int, int, Kokkos::Compat::KokkosDeviceWrapperNode<Kokkos::Serial, Kokkos::HostSpace> >::constantNumberOfPackets() const'
+CMakeFiles/cmTC_1eb73.dir/src.cxx.o:src.cxx:vtable for Tpetra::Vector<double, int, int, Kokkos::Compat::KokkosDeviceWrapperNode<Kokkos::Serial, Kokkos::HostSpace> >: error: undefined reference to 'Tpetra::DistObject<double, int, int, Kokkos::Compat::KokkosDeviceWrapperNode<Kokkos::Serial, Kokkos::HostSpace> >::doTransfer(Tpetra::SrcDistObject const&, Tpetra::Details::Transfer<int, int, Kokkos::Compat::KokkosDeviceWrapperNode<Kokkos::Serial, Kokkos::HostSpace> > const&, char const*, Tpetra::DistObject<double, int, int, Kokkos::Compat::KokkosDeviceWrapperNode<Kokkos::Serial, Kokkos::HostSpace> >::ReverseOption, Tpetra::CombineMode, bool)'
+CMakeFiles/cmTC_1eb73.dir/src.cxx.o:src.cxx:vtable for Tpetra::Vector<double, int, int, Kokkos::Compat::KokkosDeviceWrapperNode<Kokkos::Serial, Kokkos::HostSpace> >: error: undefined reference to 'Tpetra::DistObject<double, int, int, Kokkos::Compat::KokkosDeviceWrapperNode<Kokkos::Serial, Kokkos::HostSpace> >::reallocArraysForNumPacketsPerLid(unsigned long, unsigned long)'
+CMakeFiles/cmTC_1eb73.dir/src.cxx.o:src.cxx:vtable for Tpetra::Vector<double, int, int, Kokkos::Compat::KokkosDeviceWrapperNode<Kokkos::Serial, Kokkos::HostSpace> >: error: undefined reference to 'Tpetra::MultiVector<double, int, int, Kokkos::Compat::KokkosDeviceWrapperNode<Kokkos::Serial, Kokkos::HostSpace> >::checkSizes(Tpetra::SrcDistObject const&)'
+CMakeFiles/cmTC_1eb73.dir/src.cxx.o:src.cxx:vtable for Tpetra::Vector<double, int, int, Kokkos::Compat::KokkosDeviceWrapperNode<Kokkos::Serial, Kokkos::HostSpace> >: error: undefined reference to 'Tpetra::MultiVector<double, int, int, Kokkos::Compat::KokkosDeviceWrapperNode<Kokkos::Serial, Kokkos::HostSpace> >::copyAndPermute(Tpetra::SrcDistObject const&, unsigned long, Kokkos::DualView<int const*, Kokkos::Device<Kokkos::Serial, Kokkos::HostSpace>, void, void> const&, Kokkos::DualView<int const*, Kokkos::Device<Kokkos::Serial, Kokkos::HostSpace>, void, void> const&, Tpetra::CombineMode)'
+CMakeFiles/cmTC_1eb73.dir/src.cxx.o:src.cxx:vtable for Tpetra::Vector<double, int, int, Kokkos::Compat::KokkosDeviceWrapperNode<Kokkos::Serial, Kokkos::HostSpace> >: error: undefined reference to 'Tpetra::MultiVector<double, int, int, Kokkos::Compat::KokkosDeviceWrapperNode<Kokkos::Serial, Kokkos::HostSpace> >::packAndPrepare(Tpetra::SrcDistObject const&, Kokkos::DualView<int const*, Kokkos::Device<Kokkos::Serial, Kokkos::HostSpace>, void, void> const&, Kokkos::DualView<double*, Kokkos::Device<Kokkos::Serial, Kokkos::HostSpace>, void, void>&, Kokkos::DualView<unsigned long*, Kokkos::Device<Kokkos::Serial, Kokkos::HostSpace>, void, void>, unsigned long&)'
+CMakeFiles/cmTC_1eb73.dir/src.cxx.o:src.cxx:vtable for Tpetra::Vector<double, int, int, Kokkos::Compat::KokkosDeviceWrapperNode<Kokkos::Serial, Kokkos::HostSpace> >: error: undefined reference to 'Tpetra::MultiVector<double, int, int, Kokkos::Compat::KokkosDeviceWrapperNode<Kokkos::Serial, Kokkos::HostSpace> >::unpackAndCombine(Kokkos::DualView<int const*, Kokkos::Device<Kokkos::Serial, Kokkos::HostSpace>, void, void> const&, Kokkos::DualView<double*, Kokkos::Device<Kokkos::Serial, Kokkos::HostSpace>, void, void>, Kokkos::DualView<unsigned long*, Kokkos::Device<Kokkos::Serial, Kokkos::HostSpace>, void, void>, unsigned long, Tpetra::CombineMode)'
+CMakeFiles/cmTC_1eb73.dir/src.cxx.o:src.cxx:vtable for Tpetra::Vector<double, int, int, Kokkos::Compat::KokkosDeviceWrapperNode<Kokkos::Serial, Kokkos::HostSpace> >: error: undefined reference to 'Tpetra::MultiVector<double, int, int, Kokkos::Compat::KokkosDeviceWrapperNode<Kokkos::Serial, Kokkos::HostSpace> >::reallocImportsIfNeeded(unsigned long, bool, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const*, bool, Tpetra::CombineMode)'
+CMakeFiles/cmTC_1eb73.dir/src.cxx.o:src.cxx:vtable for Tpetra::Vector<double, int, int, Kokkos::Compat::KokkosDeviceWrapperNode<Kokkos::Serial, Kokkos::HostSpace> >: error: undefined reference to 'virtual thunk to Tpetra::Vector<double, int, int, Kokkos::Compat::KokkosDeviceWrapperNode<Kokkos::Serial, Kokkos::HostSpace> >::description[abi:cxx11]() const'
+CMakeFiles/cmTC_1eb73.dir/src.cxx.o:src.cxx:vtable for Tpetra::Vector<double, int, int, Kokkos::Compat::KokkosDeviceWrapperNode<Kokkos::Serial, Kokkos::HostSpace> >: error: undefined reference to 'virtual thunk to Tpetra::Vector<double, int, int, Kokkos::Compat::KokkosDeviceWrapperNode<Kokkos::Serial, Kokkos::HostSpace> >::describe(Teuchos::basic_FancyOStream<char, std::char_traits<char> >&, Teuchos::EVerbosityLevel) const'
+CMakeFiles/cmTC_1eb73.dir/src.cxx.o:src.cxx:construction vtable for Tpetra::MultiVector<double, int, int, Kokkos::Compat::KokkosDeviceWrapperNode<Kokkos::Serial, Kokkos::HostSpace> >-in-Tpetra::Vector<double, int, int, Kokkos::Compat::KokkosDeviceWrapperNode<Kokkos::Serial, Kokkos::HostSpace> >: error: undefined reference to 'Tpetra::MultiVector<double, int, int, Kokkos::Compat::KokkosDeviceWrapperNode<Kokkos::Serial, Kokkos::HostSpace> >::description[abi:cxx11]() const'
+CMakeFiles/cmTC_1eb73.dir/src.cxx.o:src.cxx:construction vtable for Tpetra::MultiVector<double, int, int, Kokkos::Compat::KokkosDeviceWrapperNode<Kokkos::Serial, Kokkos::HostSpace> >-in-Tpetra::Vector<double, int, int, Kokkos::Compat::KokkosDeviceWrapperNode<Kokkos::Serial, Kokkos::HostSpace> >: error: undefined reference to 'Tpetra::MultiVector<double, int, int, Kokkos::Compat::KokkosDeviceWrapperNode<Kokkos::Serial, Kokkos::HostSpace> >::describe(Teuchos::basic_FancyOStream<char, std::char_traits<char> >&, Teuchos::EVerbosityLevel) const'
+CMakeFiles/cmTC_1eb73.dir/src.cxx.o:src.cxx:construction vtable for Tpetra::MultiVector<double, int, int, Kokkos::Compat::KokkosDeviceWrapperNode<Kokkos::Serial, Kokkos::HostSpace> >-in-Tpetra::Vector<double, int, int, Kokkos::Compat::KokkosDeviceWrapperNode<Kokkos::Serial, Kokkos::HostSpace> >: error: undefined reference to 'Tpetra::MultiVector<double, int, int, Kokkos::Compat::KokkosDeviceWrapperNode<Kokkos::Serial, Kokkos::HostSpace> >::removeEmptyProcessesInPlace(Teuchos::RCP<Tpetra::Map<int, int, Kokkos::Compat::KokkosDeviceWrapperNode<Kokkos::Serial, Kokkos::HostSpace> > const> const&)'
+CMakeFiles/cmTC_1eb73.dir/src.cxx.o:src.cxx:construction vtable for Tpetra::MultiVector<double, int, int, Kokkos::Compat::KokkosDeviceWrapperNode<Kokkos::Serial, Kokkos::HostSpace> >-in-Tpetra::Vector<double, int, int, Kokkos::Compat::KokkosDeviceWrapperNode<Kokkos::Serial, Kokkos::HostSpace> >: error: undefined reference to 'Tpetra::MultiVector<double, int, int, Kokkos::Compat::KokkosDeviceWrapperNode<Kokkos::Serial, Kokkos::HostSpace> >::constantNumberOfPackets() const'
+CMakeFiles/cmTC_1eb73.dir/src.cxx.o:src.cxx:construction vtable for Tpetra::MultiVector<double, int, int, Kokkos::Compat::KokkosDeviceWrapperNode<Kokkos::Serial, Kokkos::HostSpace> >-in-Tpetra::Vector<double, int, int, Kokkos::Compat::KokkosDeviceWrapperNode<Kokkos::Serial, Kokkos::HostSpace> >: error: undefined reference to 'Tpetra::DistObject<double, int, int, Kokkos::Compat::KokkosDeviceWrapperNode<Kokkos::Serial, Kokkos::HostSpace> >::doTransfer(Tpetra::SrcDistObject const&, Tpetra::Details::Transfer<int, int, Kokkos::Compat::KokkosDeviceWrapperNode<Kokkos::Serial, Kokkos::HostSpace> > const&, char const*, Tpetra::DistObject<double, int, int, Kokkos::Compat::KokkosDeviceWrapperNode<Kokkos::Serial, Kokkos::HostSpace> >::ReverseOption, Tpetra::CombineMode, bool)'
+CMakeFiles/cmTC_1eb73.dir/src.cxx.o:src.cxx:construction vtable for Tpetra::MultiVector<double, int, int, Kokkos::Compat::KokkosDeviceWrapperNode<Kokkos::Serial, Kokkos::HostSpace> >-in-Tpetra::Vector<double, int, int, Kokkos::Compat::KokkosDeviceWrapperNode<Kokkos::Serial, Kokkos::HostSpace> >: error: undefined reference to 'Tpetra::DistObject<double, int, int, Kokkos::Compat::KokkosDeviceWrapperNode<Kokkos::Serial, Kokkos::HostSpace> >::reallocArraysForNumPacketsPerLid(unsigned long, unsigned long)'
+CMakeFiles/cmTC_1eb73.dir/src.cxx.o:src.cxx:construction vtable for Tpetra::MultiVector<double, int, int, Kokkos::Compat::KokkosDeviceWrapperNode<Kokkos::Serial, Kokkos::HostSpace> >-in-Tpetra::Vector<double, int, int, Kokkos::Compat::KokkosDeviceWrapperNode<Kokkos::Serial, Kokkos::HostSpace> >: error: undefined reference to 'Tpetra::MultiVector<double, int, int, Kokkos::Compat::KokkosDeviceWrapperNode<Kokkos::Serial, Kokkos::HostSpace> >::checkSizes(Tpetra::SrcDistObject const&)'
+CMakeFiles/cmTC_1eb73.dir/src.cxx.o:src.cxx:construction vtable for Tpetra::MultiVector<double, int, int, Kokkos::Compat::KokkosDeviceWrapperNode<Kokkos::Serial, Kokkos::HostSpace> >-in-Tpetra::Vector<double, int, int, Kokkos::Compat::KokkosDeviceWrapperNode<Kokkos::Serial, Kokkos::HostSpace> >: error: undefined reference to 'Tpetra::MultiVector<double, int, int, Kokkos::Compat::KokkosDeviceWrapperNode<Kokkos::Serial, Kokkos::HostSpace> >::copyAndPermute(Tpetra::SrcDistObject const&, unsigned long, Kokkos::DualView<int const*, Kokkos::Device<Kokkos::Serial, Kokkos::HostSpace>, void, void> const&, Kokkos::DualView<int const*, Kokkos::Device<Kokkos::Serial, Kokkos::HostSpace>, void, void> const&, Tpetra::CombineMode)'
+CMakeFiles/cmTC_1eb73.dir/src.cxx.o:src.cxx:construction vtable for Tpetra::MultiVector<double, int, int, Kokkos::Compat::KokkosDeviceWrapperNode<Kokkos::Serial, Kokkos::HostSpace> >-in-Tpetra::Vector<double, int, int, Kokkos::Compat::KokkosDeviceWrapperNode<Kokkos::Serial, Kokkos::HostSpace> >: error: undefined reference to 'Tpetra::MultiVector<double, int, int, Kokkos::Compat::KokkosDeviceWrapperNode<Kokkos::Serial, Kokkos::HostSpace> >::packAndPrepare(Tpetra::SrcDistObject const&, Kokkos::DualView<int const*, Kokkos::Device<Kokkos::Serial, Kokkos::HostSpace>, void, void> const&, Kokkos::DualView<double*, Kokkos::Device<Kokkos::Serial, Kokkos::HostSpace>, void, void>&, Kokkos::DualView<unsigned long*, Kokkos::Device<Kokkos::Serial, Kokkos::HostSpace>, void, void>, unsigned long&)'
+CMakeFiles/cmTC_1eb73.dir/src.cxx.o:src.cxx:construction vtable for Tpetra::MultiVector<double, int, int, Kokkos::Compat::KokkosDeviceWrapperNode<Kokkos::Serial, Kokkos::HostSpace> >-in-Tpetra::Vector<double, int, int, Kokkos::Compat::KokkosDeviceWrapperNode<Kokkos::Serial, Kokkos::HostSpace> >: error: undefined reference to 'Tpetra::MultiVector<double, int, int, Kokkos::Compat::KokkosDeviceWrapperNode<Kokkos::Serial, Kokkos::HostSpace> >::unpackAndCombine(Kokkos::DualView<int const*, Kokkos::Device<Kokkos::Serial, Kokkos::HostSpace>, void, void> const&, Kokkos::DualView<double*, Kokkos::Device<Kokkos::Serial, Kokkos::HostSpace>, void, void>, Kokkos::DualView<unsigned long*, Kokkos::Device<Kokkos::Serial, Kokkos::HostSpace>, void, void>, unsigned long, Tpetra::CombineMode)'
+CMakeFiles/cmTC_1eb73.dir/src.cxx.o:src.cxx:construction vtable for Tpetra::MultiVector<double, int, int, Kokkos::Compat::KokkosDeviceWrapperNode<Kokkos::Serial, Kokkos::HostSpace> >-in-Tpetra::Vector<double, int, int, Kokkos::Compat::KokkosDeviceWrapperNode<Kokkos::Serial, Kokkos::HostSpace> >: error: undefined reference to 'Tpetra::MultiVector<double, int, int, Kokkos::Compat::KokkosDeviceWrapperNode<Kokkos::Serial, Kokkos::HostSpace> >::reallocImportsIfNeeded(unsigned long, bool, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const*, bool, Tpetra::CombineMode)'
+CMakeFiles/cmTC_1eb73.dir/src.cxx.o:src.cxx:construction vtable for Tpetra::MultiVector<double, int, int, Kokkos::Compat::KokkosDeviceWrapperNode<Kokkos::Serial, Kokkos::HostSpace> >-in-Tpetra::Vector<double, int, int, Kokkos::Compat::KokkosDeviceWrapperNode<Kokkos::Serial, Kokkos::HostSpace> >: error: undefined reference to 'virtual thunk to Tpetra::MultiVector<double, int, int, Kokkos::Compat::KokkosDeviceWrapperNode<Kokkos::Serial, Kokkos::HostSpace> >::description[abi:cxx11]() const'
+CMakeFiles/cmTC_1eb73.dir/src.cxx.o:src.cxx:construction vtable for Tpetra::MultiVector<double, int, int, Kokkos::Compat::KokkosDeviceWrapperNode<Kokkos::Serial, Kokkos::HostSpace> >-in-Tpetra::Vector<double, int, int, Kokkos::Compat::KokkosDeviceWrapperNode<Kokkos::Serial, Kokkos::HostSpace> >: error: undefined reference to 'virtual thunk to Tpetra::MultiVector<double, int, int, Kokkos::Compat::KokkosDeviceWrapperNode<Kokkos::Serial, Kokkos::HostSpace> >::describe(Teuchos::basic_FancyOStream<char, std::char_traits<char> >&, Teuchos::EVerbosityLevel) const'
+CMakeFiles/cmTC_1eb73.dir/src.cxx.o:src.cxx:construction vtable for Tpetra::DistObject<double, int, int, Kokkos::Compat::KokkosDeviceWrapperNode<Kokkos::Serial, Kokkos::HostSpace> >-in-Tpetra::Vector<double, int, int, Kokkos::Compat::KokkosDeviceWrapperNode<Kokkos::Serial, Kokkos::HostSpace> >: error: undefined reference to 'Tpetra::DistObject<double, int, int, Kokkos::Compat::KokkosDeviceWrapperNode<Kokkos::Serial, Kokkos::HostSpace> >::description[abi:cxx11]() const'
+CMakeFiles/cmTC_1eb73.dir/src.cxx.o:src.cxx:construction vtable for Tpetra::DistObject<double, int, int, Kokkos::Compat::KokkosDeviceWrapperNode<Kokkos::Serial, Kokkos::HostSpace> >-in-Tpetra::Vector<double, int, int, Kokkos::Compat::KokkosDeviceWrapperNode<Kokkos::Serial, Kokkos::HostSpace> >: error: undefined reference to 'Tpetra::DistObject<double, int, int, Kokkos::Compat::KokkosDeviceWrapperNode<Kokkos::Serial, Kokkos::HostSpace> >::describe(Teuchos::basic_FancyOStream<char, std::char_traits<char> >&, Teuchos::EVerbosityLevel) const'
+CMakeFiles/cmTC_1eb73.dir/src.cxx.o:src.cxx:construction vtable for Tpetra::DistObject<double, int, int, Kokkos::Compat::KokkosDeviceWrapperNode<Kokkos::Serial, Kokkos::HostSpace> >-in-Tpetra::Vector<double, int, int, Kokkos::Compat::KokkosDeviceWrapperNode<Kokkos::Serial, Kokkos::HostSpace> >: error: undefined reference to 'Tpetra::DistObject<double, int, int, Kokkos::Compat::KokkosDeviceWrapperNode<Kokkos::Serial, Kokkos::HostSpace> >::removeEmptyProcessesInPlace(Teuchos::RCP<Tpetra::Map<int, int, Kokkos::Compat::KokkosDeviceWrapperNode<Kokkos::Serial, Kokkos::HostSpace> > const> const&)'
+CMakeFiles/cmTC_1eb73.dir/src.cxx.o:src.cxx:construction vtable for Tpetra::DistObject<double, int, int, Kokkos::Compat::KokkosDeviceWrapperNode<Kokkos::Serial, Kokkos::HostSpace> >-in-Tpetra::Vector<double, int, int, Kokkos::Compat::KokkosDeviceWrapperNode<Kokkos::Serial, Kokkos::HostSpace> >: error: undefined reference to 'Tpetra::DistObject<double, int, int, Kokkos::Compat::KokkosDeviceWrapperNode<Kokkos::Serial, Kokkos::HostSpace> >::constantNumberOfPackets() const'
+CMakeFiles/cmTC_1eb73.dir/src.cxx.o:src.cxx:construction vtable for Tpetra::DistObject<double, int, int, Kokkos::Compat::KokkosDeviceWrapperNode<Kokkos::Serial, Kokkos::HostSpace> >-in-Tpetra::Vector<double, int, int, Kokkos::Compat::KokkosDeviceWrapperNode<Kokkos::Serial, Kokkos::HostSpace> >: error: undefined reference to 'Tpetra::DistObject<double, int, int, Kokkos::Compat::KokkosDeviceWrapperNode<Kokkos::Serial, Kokkos::HostSpace> >::doTransfer(Tpetra::SrcDistObject const&, Tpetra::Details::Transfer<int, int, Kokkos::Compat::KokkosDeviceWrapperNode<Kokkos::Serial, Kokkos::HostSpace> > const&, char const*, Tpetra::DistObject<double, int, int, Kokkos::Compat::KokkosDeviceWrapperNode<Kokkos::Serial, Kokkos::HostSpace> >::ReverseOption, Tpetra::CombineMode, bool)'
+CMakeFiles/cmTC_1eb73.dir/src.cxx.o:src.cxx:construction vtable for Tpetra::DistObject<double, int, int, Kokkos::Compat::KokkosDeviceWrapperNode<Kokkos::Serial, Kokkos::HostSpace> >-in-Tpetra::Vector<double, int, int, Kokkos::Compat::KokkosDeviceWrapperNode<Kokkos::Serial, Kokkos::HostSpace> >: error: undefined reference to 'Tpetra::DistObject<double, int, int, Kokkos::Compat::KokkosDeviceWrapperNode<Kokkos::Serial, Kokkos::HostSpace> >::reallocArraysForNumPacketsPerLid(unsigned long, unsigned long)'
+CMakeFiles/cmTC_1eb73.dir/src.cxx.o:src.cxx:construction vtable for Tpetra::DistObject<double, int, int, Kokkos::Compat::KokkosDeviceWrapperNode<Kokkos::Serial, Kokkos::HostSpace> >-in-Tpetra::Vector<double, int, int, Kokkos::Compat::KokkosDeviceWrapperNode<Kokkos::Serial, Kokkos::HostSpace> >: error: undefined reference to 'Tpetra::DistObject<double, int, int, Kokkos::Compat::KokkosDeviceWrapperNode<Kokkos::Serial, Kokkos::HostSpace> >::copyAndPermute(Tpetra::SrcDistObject const&, unsigned long, Kokkos::DualView<int const*, Kokkos::Device<Kokkos::Serial, Kokkos::HostSpace>, void, void> const&, Kokkos::DualView<int const*, Kokkos::Device<Kokkos::Serial, Kokkos::HostSpace>, void, void> const&, Tpetra::CombineMode)'
+CMakeFiles/cmTC_1eb73.dir/src.cxx.o:src.cxx:construction vtable for Tpetra::DistObject<double, int, int, Kokkos::Compat::KokkosDeviceWrapperNode<Kokkos::Serial, Kokkos::HostSpace> >-in-Tpetra::Vector<double, int, int, Kokkos::Compat::KokkosDeviceWrapperNode<Kokkos::Serial, Kokkos::HostSpace> >: error: undefined reference to 'Tpetra::DistObject<double, int, int, Kokkos::Compat::KokkosDeviceWrapperNode<Kokkos::Serial, Kokkos::HostSpace> >::packAndPrepare(Tpetra::SrcDistObject const&, Kokkos::DualView<int const*, Kokkos::Device<Kokkos::Serial, Kokkos::HostSpace>, void, void> const&, Kokkos::DualView<double*, Kokkos::Device<Kokkos::Serial, Kokkos::HostSpace>, void, void>&, Kokkos::DualView<unsigned long*, Kokkos::Device<Kokkos::Serial, Kokkos::HostSpace>, void, void>, unsigned long&)'
+CMakeFiles/cmTC_1eb73.dir/src.cxx.o:src.cxx:construction vtable for Tpetra::DistObject<double, int, int, Kokkos::Compat::KokkosDeviceWrapperNode<Kokkos::Serial, Kokkos::HostSpace> >-in-Tpetra::Vector<double, int, int, Kokkos::Compat::KokkosDeviceWrapperNode<Kokkos::Serial, Kokkos::HostSpace> >: error: undefined reference to 'Tpetra::DistObject<double, int, int, Kokkos::Compat::KokkosDeviceWrapperNode<Kokkos::Serial, Kokkos::HostSpace> >::unpackAndCombine(Kokkos::DualView<int const*, Kokkos::Device<Kokkos::Serial, Kokkos::HostSpace>, void, void> const&, Kokkos::DualView<double*, Kokkos::Device<Kokkos::Serial, Kokkos::HostSpace>, void, void>, Kokkos::DualView<unsigned long*, Kokkos::Device<Kokkos::Serial, Kokkos::HostSpace>, void, void>, unsigned long, Tpetra::CombineMode)'
+CMakeFiles/cmTC_1eb73.dir/src.cxx.o:src.cxx:construction vtable for Tpetra::DistObject<double, int, int, Kokkos::Compat::KokkosDeviceWrapperNode<Kokkos::Serial, Kokkos::HostSpace> >-in-Tpetra::Vector<double, int, int, Kokkos::Compat::KokkosDeviceWrapperNode<Kokkos::Serial, Kokkos::HostSpace> >: error: undefined reference to 'Tpetra::DistObject<double, int, int, Kokkos::Compat::KokkosDeviceWrapperNode<Kokkos::Serial, Kokkos::HostSpace> >::reallocImportsIfNeeded(unsigned long, bool, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const*, bool, Tpetra::CombineMode)'
+CMakeFiles/cmTC_1eb73.dir/src.cxx.o:src.cxx:construction vtable for Tpetra::DistObject<double, int, int, Kokkos::Compat::KokkosDeviceWrapperNode<Kokkos::Serial, Kokkos::HostSpace> >-in-Tpetra::Vector<double, int, int, Kokkos::Compat::KokkosDeviceWrapperNode<Kokkos::Serial, Kokkos::HostSpace> >: error: undefined reference to 'virtual thunk to Tpetra::DistObject<double, int, int, Kokkos::Compat::KokkosDeviceWrapperNode<Kokkos::Serial, Kokkos::HostSpace> >::description[abi:cxx11]() const'
+CMakeFiles/cmTC_1eb73.dir/src.cxx.o:src.cxx:construction vtable for Tpetra::DistObject<double, int, int, Kokkos::Compat::KokkosDeviceWrapperNode<Kokkos::Serial, Kokkos::HostSpace> >-in-Tpetra::Vector<double, int, int, Kokkos::Compat::KokkosDeviceWrapperNode<Kokkos::Serial, Kokkos::HostSpace> >: error: undefined reference to 'virtual thunk to Tpetra::DistObject<double, int, int, Kokkos::Compat::KokkosDeviceWrapperNode<Kokkos::Serial, Kokkos::HostSpace> >::describe(Teuchos::basic_FancyOStream<char, std::char_traits<char> >&, Teuchos::EVerbosityLevel) const'
+collect2: error: ld returned 1 exit status
+gmake[1]: *** [CMakeFiles/cmTC_1eb73.dir/build.make:238: cmTC_1eb73] Error 1
+gmake[1]: Leaving directory '/home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp'
+gmake: *** [Makefile:127: cmTC_1eb73/fast] Error 2
+
+
+Source file was:
+
+        #include <cstdint>
+        #include <Tpetra_Vector.hpp>
+        int main()
+        {
+          using LO       = int;
+          using GO       = int;
+          using map_type = Tpetra::Map<LO, GO>;
+          Teuchos::RCP<const map_type>   dummy_map = Teuchos::rcp(new map_type());
+          Tpetra::Vector<double, LO, GO> dummy_vector(dummy_map);
+          (void)dummy_vector;
+          return 0;
+        }
+        
+Determining if the HAVE_TPETRA_INT_INT exist failed with the following output:
+Change Dir: /home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_f2dd9/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_f2dd9.dir/build.make CMakeFiles/cmTC_f2dd9.dir/build
+gmake[1]: Entering directory '/home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_f2dd9.dir/CheckSymbolExists.cxx.o
+/usr/bin/c++  -I/usr/include/trilinos -I/usr/lib/x86_64-linux-gnu/openmpi/include -I/usr/lib/x86_64-linux-gnu/openmpi/include/openmpi -fopenmp-simd -rdynamic -fuse-ld=gold -std=c++17 -o CMakeFiles/cmTC_f2dd9.dir/CheckSymbolExists.cxx.o -c /home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp/CheckSymbolExists.cxx
+/home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp/CheckSymbolExists.cxx: In function ‘int main(int, char**)’:
+/home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp/CheckSymbolExists.cxx:8:19: error: ‘HAVE_TPETRA_INT_INT’ was not declared in this scope; did you mean ‘HAVE_TPETRA_TSQR’?
+    8 |   return ((int*)(&HAVE_TPETRA_INT_INT))[argc];
+      |                   ^~~~~~~~~~~~~~~~~~~
+      |                   HAVE_TPETRA_TSQR
+gmake[1]: *** [CMakeFiles/cmTC_f2dd9.dir/build.make:78: CMakeFiles/cmTC_f2dd9.dir/CheckSymbolExists.cxx.o] Error 1
+gmake[1]: Leaving directory '/home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp'
+gmake: *** [Makefile:127: cmTC_f2dd9/fast] Error 2
+
+
+File /home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp/CheckSymbolExists.cxx:
+/* */
+#include <TpetraCore_config.h>
+
+int main(int argc, char** argv)
+{
+  (void)argv;
+#ifndef HAVE_TPETRA_INT_INT
+  return ((int*)(&HAVE_TPETRA_INT_INT))[argc];
+#else
+  (void)argc;
+  return 0;
+#endif
+}
+Performing C++ SOURCE FILE Test TRILINOS_MUELU_IS_FUNCTIONAL failed with the following output:
+Change Dir: /home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_2cdac/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_2cdac.dir/build.make CMakeFiles/cmTC_2cdac.dir/build
+gmake[1]: Entering directory '/home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_2cdac.dir/src.cxx.o
+/usr/bin/c++ -DTRILINOS_MUELU_IS_FUNCTIONAL -I/usr/include/trilinos -I/usr/lib/x86_64-linux-gnu/openmpi/include -I/usr/lib/x86_64-linux-gnu/openmpi/include/openmpi -std=c++17 -o CMakeFiles/cmTC_2cdac.dir/src.cxx.o -c /home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp/src.cxx
+/home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp/src.cxx:2:18: fatal error: MueLu_CreateEpetraPreconditioner.hpp: No such file or directory
+    2 |         #include <MueLu_CreateEpetraPreconditioner.hpp>
+      |                  ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+compilation terminated.
+gmake[1]: *** [CMakeFiles/cmTC_2cdac.dir/build.make:78: CMakeFiles/cmTC_2cdac.dir/src.cxx.o] Error 1
+gmake[1]: Leaving directory '/home/user/Downloads/dealii-9.6.2/build/CMakeFiles/CMakeTmp'
+gmake: *** [Makefile:127: cmTC_2cdac/fast] Error 2
+
+
+Source file was:
+
+        #include <MueLu_CreateEpetraPreconditioner.hpp>
+        int
+        main()
+        {
+          Epetra_CrsMatrix *matrix;
+          const auto teuchos_wrapped_matrix = Teuchos::rcp(matrix, false);
+          Teuchos::ParameterList parameters;
+          MueLu::CreateEpetraPreconditioner(teuchos_wrapped_matrix, parameters);
+          return 0;
+        }
+        

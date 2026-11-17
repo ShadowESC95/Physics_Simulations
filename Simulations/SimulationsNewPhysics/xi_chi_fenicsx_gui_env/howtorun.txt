@@ -1,0 +1,58 @@
+conda activate xichi-gui
+cd $HOME/Desktop/Physics/Simulations/SimulationsNewPhysics/xi_chi_fenicsx_gui_env
+
+# 1) solve Xi–Chi (100 steps on a 64³ mesh)
+python modules/fenicsx_time_evolution.py \
+  --nx 64 --ny 64 --nz 64 \
+  --steps 100 --dt 0.005 \
+  --alpha 1.0 --beta 0.01 \
+  --out . --stem xi_chi_evolution
+# writes: xi_chi_evolution.{xdmf,h5} in the current folder
+# (MPI option: mpirun -np 4 python modules/fenicsx_time_evolution.py ...)
+
+# 2) export *both* Xi and Chi to VTU (meshio path) and build the PVD
+python - <<'PY'
+import meshio, glob, os
+os.makedirs("output", exist_ok=True)
+with meshio.xdmf.TimeSeriesReader("xi_chi_evolution.xdmf") as r:
+    P,C = r.read_points_cells()
+    for k in range(r.num_steps):
+        t,PD,CD = r.read_data(k)         # PD has Xi *and* Chi
+        meshio.Mesh(P,C,point_data=PD).write(f"output/xi_chi_field{k:04d}.vtu")
+vtus = sorted(glob.glob("output/xi_chi_field*.vtu"))
+with open("output/xi_chi_field_series.pvd","w") as f:
+    f.write('<?xml version="1.0"?>\n<VTKFile type="Collection" version="0.1" byte_order="LittleEndian">\n  <Collection>\n')
+    for i,p in enumerate(vtus):
+        f.write(f'    <DataSet timestep="{i}" file="{os.path.basename(p)}"/>\n')
+    f.write('  </Collection>\n</VTKFile>\n')
+print("frames:", len(vtus))
+PY
+
+# 3) view in ParaView
+paraview --data=output/xi_chi_field_series.pvd
+
+
+
+Using the Poisson files
+
+/sims/fenicsx/poisson3d.py produces a single-snapshot field u. If you want u alongside every Xi/Chi frame (same mesh size), attach it like this:
+
+python sims/fenicsx/poisson3d.py --nx 64 --ny 64 --nz 64 --out output --stem poisson_u --write-vtu
+
+python - <<'PY'
+import glob, os, pyvista as pv
+po = pv.read("output/poisson_u_0000.vtu")
+os.makedirs("output_with_u", exist_ok=True)
+for f in sorted(glob.glob("output/xi_chi_field*.vtu")):
+    g = pv.read(f); assert g.n_points==po.n_points
+    g.point_data["u"] = po.point_data["u"]
+    g.save(os.path.join("output_with_u", os.path.basename(f).replace("xi_chi_field","xi_chi_u")))
+vtus = sorted(glob.glob("output_with_u/xi_chi_u*.vtu"))
+with open("output_with_u/xi_chi_u_series.pvd","w") as f:
+    f.write('<?xml version="1.0"?>\n<VTKFile type="Collection" version="0.1" byte_order="LittleEndian">\n  <Collection>\n')
+    for i,p in enumerate(vtus): f.write(f'    <DataSet timestep="{i}" file="{os.path.basename(p)}"/>\n')
+    f.write('  </Collection>\n</VTKFile>\n')
+print("frames:", len(vtus))
+PY
+paraview --data=output_with_u/xi_chi_u_series.pvd
+

@@ -1,0 +1,3 @@
+[project.scripts]
+# ...
+xichi-thermo = "xichi.cli.run:thermo"

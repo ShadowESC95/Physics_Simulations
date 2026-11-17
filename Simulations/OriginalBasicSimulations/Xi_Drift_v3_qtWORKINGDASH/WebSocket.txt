@@ -1,0 +1,59 @@
+✅ Fixes
+✅ Option 1: Use a normal webpage (recommended)
+Instead of running that WebSocket snippet in chrome:// pages or from file://, do this:
+
+Open your Dash GUI at:
+
+cpp
+Copy
+Edit
+http://192.168.0.122:8050
+Press F12 to open DevTools → Console tab
+
+Now paste:
+
+js
+Copy
+Edit
+const ws = new WebSocket("ws://192.168.0.122:8765");
+ws.onopen = () => console.log("✅ Connected to telemetry WS");
+ws.onmessage = (e) => console.log("📡 Message from server:", e.data);
+You should now see:
+
+css
+Copy
+Edit
+✅ Connected to telemetry WS
+📡 Message from server: 🛰️ Telemetry online...
+🛠️ Option 2: Use a custom HTML test page (if you want)
+Create a test_ws.html file:
+
+html
+Copy
+Edit
+<!DOCTYPE html>
+<html>
+<head>
+  <title>WS Test</title>
+</head>
+<body>
+  <h1>WS Test</h1>
+  <script>
+    const ws = new WebSocket("ws://192.168.0.122:8765");
+    ws.onopen = () => console.log("✅ Connected to telemetry WS");
+    ws.onmessage = (e) => console.log("📡 Message:", e.data);
+  </script>
+</body>
+</html>
+Then serve it locally:
+
+bash
+Copy
+Edit
+python3 -m http.server 9000
+Visit:
+
+bash
+Copy
+Edit
+http://localhost:9000/test_ws.html

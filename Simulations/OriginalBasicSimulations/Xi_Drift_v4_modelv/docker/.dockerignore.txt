@@ -1,0 +1,13 @@
+__pycache__/
+*.pyc
+*.h5
+*.vtk
+*.csv
+output/
+*.log
+*.swp
+*.ipynb_checkpoints/
+.env
+.venv/
+build/
+dist/

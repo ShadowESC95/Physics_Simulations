@@ -1,0 +1,17 @@
+# config/data_sources.yaml
+sources:
+  CMB_Birefringence:
+    driver: xarray
+    args:
+      urlpath: "s3://cosmic-data/cmb/2024/xi_polarization.zarr"
+
+  Tokamak_Reactor:
+    driver: sql
+    args:
+      uri: "postgresql://reactor:fusion@iter.org/telemetry"
+      query: "SELECT * FROM plasma_states WHERE t > NOW() - INTERVAL '1h'"
+
+  Gravitational_Waves:
+    driver: ligo.gracedb
+    args:
+      event_type: "GWTC-3-confident"

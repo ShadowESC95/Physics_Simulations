@@ -1,0 +1,36 @@
+\documentclass{article}
+\usepackage{amsmath}
+\usepackage{geometry}
+\geometry{margin=1in}
+
+\title{DRIFT Tensor Overlay Explained}
+\author{}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\section*{Tensor Definition}
+
+\[
+T_{ij} = \partial_i \xi \partial_j \xi + \lambda \cdot \Delta \xi \cdot \delta_{ij}
+\]
+
+\section*{Purpose}
+
+\begin{itemize}
+  \item Encodes anisotropic growth
+  \item Models local lensing
+  \item Visualized as quiver vector overlays
+\end{itemize}
+
+\section*{Applications}
+
+\begin{itemize}
+  \item Plot overlays (Matplotlib \texttt{quiver})
+  \item 3D projections in $\xi$ and $\chi$
+  \item Color-coded field strength modulation
+\end{itemize}
+
+\end{document}

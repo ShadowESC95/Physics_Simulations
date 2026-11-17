@@ -1,0 +1,52 @@
+
+\documentclass{article}
+\usepackage{amsmath}
+\usepackage{geometry}
+\geometry{margin=1in}
+
+\title{Symbolic Derivation: Entropic-Coherence-EM Framework}
+\author{Jay}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section*{Lagrangian Formulation}
+
+We define the entropic scalar field $\Xi(x^\mu)$, coherence modulation field $\chi(x^\mu)$, and electromagnetic field tensor $F_{\mu\nu}$.
+
+The effective Lagrangian density is:
+\begin{align}
+\mathcal{L} = &\ \frac{1}{2} \partial_\mu \Xi \partial^\mu \Xi 
++ \lambda(\Xi, \chi)\, \partial_\mu \chi \partial^\mu \chi 
++ \frac{\alpha(\chi)}{4} F_{\mu\nu}F^{\mu\nu} 
+- V(\Xi, \chi) \\
+&\ - \eta \Xi\, F_{\mu\nu} \tilde{F}^{\mu\nu}
+\end{align}
+
+\section*{Potential Term}
+We define the interaction potential:
+\begin{align}
+V(\Xi, \chi) = -\mu^2 \Xi^2 + \beta \Xi^2 \chi^2 + \gamma \chi^4
+\end{align}
+
+\section*{Field Equations}
+
+The Euler–Lagrange equations yield:
+
+\subsection*{Entropy Field $\Xi$}
+\begin{align}
+\Box \Xi = \frac{\partial V}{\partial \Xi} - \eta F_{\mu\nu} \tilde{F}^{\mu\nu}
+\end{align}
+
+\subsection*{Coherence Field $\chi$}
+\begin{align}
+\Box \chi = \frac{\partial V}{\partial \chi} + \frac{1}{4} \frac{\partial \alpha}{\partial \chi} F_{\mu\nu} F^{\mu\nu}
+\end{align}
+
+\subsection*{Electromagnetic Field $A_\mu$}
+\begin{align}
+\partial^\nu (\alpha(\chi) F_{\nu\mu}) = \eta \partial_\mu \Xi \tilde{F}^{\mu\nu}
+\end{align}
+
+\end{document}

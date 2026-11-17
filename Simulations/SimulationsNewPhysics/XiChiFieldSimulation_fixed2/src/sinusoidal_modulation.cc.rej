@@ -1,0 +1,14 @@
+--- src/sinusoidal_modulation.cc
++++ src/sinusoidal_modulation.cc
+@@ -1,8 +1,9 @@
+ #include "sinusoidal_modulation.h"
+ #include <cmath>
+ 
+-template <int dim>
+-void apply_sinusoidal_modulation(DoFHandler<dim> &dof_handler,
++template <int dim>
++void apply_sinusoidal_modulation(DoFHandler<dim> & /*dof_handler*/,  // unused
+                                  Vector<double> &data,
+                                   double amplitude)
+ {
++  (void)amplitude; // suppress “unused parameter” if amplitude isn't used in your inner loop

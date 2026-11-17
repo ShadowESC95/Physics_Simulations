@@ -1,0 +1,4 @@
+
+            if(NOT (NOT DEAL_II_WITH_MPI OR NOT DEAL_II_WITH_P4EST OR NOT DEAL_II_WITH_TRILINOS))
+              set(_setup TRUE)
+            endif()

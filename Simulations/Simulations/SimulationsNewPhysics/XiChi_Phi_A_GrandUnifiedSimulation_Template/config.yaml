@@ -1,0 +1,3 @@
+simulation_parameters:
+  mesh_size: 128
+  time_steps: 50000

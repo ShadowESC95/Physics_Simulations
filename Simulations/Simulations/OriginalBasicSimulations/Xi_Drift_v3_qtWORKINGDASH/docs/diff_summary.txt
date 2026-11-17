@@ -1,0 +1,16 @@
+# Diff Summary between v2 and v3
+
+### Removed
+- `engine/utils.py` now split into `utils/math_tools.py` and `io/io_vtk.py`
+
+### Added
+- `visual/qt_field_viewer3d.py`: Interactive 3D tabbed GUI
+- `visual/yt_volume_view.py`: yt rendering
+- `tools/generate_phase_plot.py`: CLI-based Ξχ visualization
+- `engine/io/io_openfoam_export.py`: OpenFOAM-ready CSV output
+
+### Refactored
+- Modular `engine/fields/`, `engine/io/`, `engine/utils/`
+- Compatible with ParaView, yt, OpenFOAM
+- Export buttons added to GUI for PNG + VTK
+- Parallel scaffolding via MPI4PY

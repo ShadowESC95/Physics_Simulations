@@ -1,0 +1,9 @@
+# infrastructure/edge-computing.yaml
+functions:
+  field-preprocessor:
+    handler: src/edge/process.py
+    triggers:
+      - type: iot-core
+        device: "sensor-*"
+    resources:
+      quantum: true

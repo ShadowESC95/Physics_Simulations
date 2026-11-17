@@ -1,0 +1,49 @@
+diff --git a/src/pink_noise_generator.cc b/src/pink_noise_generator.cc
+index 5a1b2c3..d4e5f6a 100644
+--- a/src/pink_noise_generator.cc
++++ b/src/pink_noise_generator.cc
+@@ -1,7 +1,8 @@
+ #include "pink_noise_generator.h"
+ 
+ template <int dim>
+-void apply_pink_noise(DoFHandler<dim> &dof_handler,
++void apply_pink_noise(DoFHandler<dim> & /*dof_handler*/,  // unused on purpose
+                        Vector<double> &data)
+ {
++  (void)data; // silence any “unused variable” if you later change stubs
+   for (unsigned int i = 0; i < data.size(); ++i)
+     data[i] = 0.0;
+ }
+diff --git a/src/sinusoidal_modulation.cc b/src/sinusoidal_modulation.cc
+index 7f8e9d0..0a1b2c3 100644
+--- a/src/sinusoidal_modulation.cc
++++ b/src/sinusoidal_modulation.cc
+@@ -1,8 +1,9 @@
+ #include "sinusoidal_modulation.h"
+ #include <cmath>
+ 
+-template <int dim>
+-void apply_sinusoidal_modulation(DoFHandler<dim> &dof_handler,
++template <int dim>
++void apply_sinusoidal_modulation(DoFHandler<dim> & /*dof_handler*/,  // unused
+                                  Vector<double> &data,
+                                   double amplitude)
+ {
++  (void)amplitude; // suppress “unused parameter” if amplitude isn't used in your inner loop
+   const double two_pi = 2.0 * numbers::PI;
+   for (unsigned int i = 0; i < data.size(); ++i)
+     data[i] += amplitude * std::sin(two_pi * i / data.size());
+diff --git a/src/field_solver.cc b/src/field_solver.cc
+index a1b2c3d..e4f5g6h 100644
+--- a/src/field_solver.cc
++++ b/src/field_solver.cc
+@@ -49,7 +49,8 @@ template <int dim>
+   dealii::DataOut<dim> out;
+   out.attach_dof_handler(dof_handler);
+   out.add_data_vector(phi, "phi");
+-  std::system("mkdir -p output");
++  (void)std::system("mkdir -p output"); // ignore return code on purpose
+   std::ofstream file("output/fields-" + std::to_string(timestep) + ".vtu");
+   out.write_vtu(file);
+ }
+

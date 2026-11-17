@@ -1,0 +1,37 @@
+\documentclass{article}
+\usepackage{geometry}
+\geometry{margin=1in}
+
+\title{Interactive $\chi$–$\xi$ Visualizer Overview}
+\author{}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\section*{Core Features}
+
+\begin{itemize}
+  \item 3D $\xi$ field with $\chi$ overlay
+  \item Slider for timestep evolution
+  \item Live vector overlays from DRIFT
+\end{itemize}
+
+\section*{Backends}
+
+\begin{itemize}
+  \item Plotly (browser-based)
+  \item Mayavi, VisPy (GPU acceleration)
+  \item PyQtGraph (minimal, fast)
+\end{itemize}
+
+\section*{Controls}
+
+\begin{itemize}
+  \item Frame index slider
+  \item Rotate, zoom, pan
+  \item Toggle overlays: DRIFT, entropy
+\end{itemize}
+
+\end{document}

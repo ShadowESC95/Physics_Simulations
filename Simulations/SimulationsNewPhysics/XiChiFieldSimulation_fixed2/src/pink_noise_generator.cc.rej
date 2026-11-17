@@ -1,0 +1,12 @@
+--- src/pink_noise_generator.cc
++++ src/pink_noise_generator.cc
+@@ -1,7 +1,8 @@
+ #include "pink_noise_generator.h"
+ 
+ template <int dim>
+-void apply_pink_noise(DoFHandler<dim> &dof_handler,
++void apply_pink_noise(DoFHandler<dim> & /*dof_handler*/,  // unused on purpose
+                        Vector<double> &data)
+ {
++  (void)data; // silence any “unused variable” if you later change stubs
+   for (unsigned int i = 0; i < data.size(); ++i)

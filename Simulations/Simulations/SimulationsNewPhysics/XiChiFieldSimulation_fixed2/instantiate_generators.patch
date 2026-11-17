@@ -1,0 +1,33 @@
+diff --git a/src/pink_noise_generator.cc b/src/pink_noise_generator.cc
+index 5a1b2c3..d4e5f6a 100644
+--- a/src/pink_noise_generator.cc
++++ b/src/pink_noise_generator.cc
+@@ void apply_pink_noise(DoFHandler<dim> & /*dof_handler*/,  Vector<double> &data)
+   for (unsigned int i = 0; i < data.size(); ++i)
+     data[i] = 0.0;
+ }
++
++//-----------------------------------------------------------------------------//
++// Explicit instantiation for 3D:
++template void apply_pink_noise<3>(
++  dealii::DoFHandler<3> &,
++  dealii::Vector<double> &
++);
+
+diff --git a/src/sinusoidal_modulation.cc b/src/sinusoidal_modulation.cc
+index 7f8e9d0..0a1b2c3 100644
+--- a/src/sinusoidal_modulation.cc
++++ b/src/sinusoidal_modulation.cc
+@@ void apply_sinusoidal_modulation(DoFHandler<dim> & /*dof_handler*/, Vector<double> &data, double amplitude)
+   for (unsigned int i = 0; i < data.size(); ++i)
+     data[i] += amplitude * std::sin(two_pi * i / data.size());
+ }
++
++//-----------------------------------------------------------------------------//
++// Explicit instantiation for 3D:
++template void apply_sinusoidal_modulation<3>(
++  dealii::DoFHandler<3> &,
++  dealii::Vector<double> &,
++  double
++);
+

@@ -1,0 +1,20 @@
+    def _make_controls(self):
+        try:
+            from qtpy import QtWidgets as QtW
+        except Exception:
+            return  # no panel if qtpy not available
+
+        dock = QtW.QDockWidget("Controls", self.plotter.app_window)
+        panel = QtW.QWidget()
+        layout = QtW.QVBoxLayout(panel)
+
+        btn_start = QtW.QPushButton("Start Visualization")
+        btn_stop  = QtW.QPushButton("Stop Visualization")
+        layout.addWidget(btn_start)
+        layout.addWidget(btn_stop)
+
+        dock.setWidget(panel)
+        self.plotter.app_window.addDockWidget(QtW.Qt.RightDockWidgetArea, dock)
+
+        btn_start.clicked.connect(self.start)
+        btn_stop.clicked.connect(self.stop)

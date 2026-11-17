@@ -1,0 +1,14 @@
+name: meep-env
+channels:
+  - conda-forge
+dependencies:
+  - python=3.10
+  - meep=1.17
+  - h5py
+  - numpy
+  - scipy
+  - matplotlib
+  - mpb
+  - harminv
+  - libctl
+

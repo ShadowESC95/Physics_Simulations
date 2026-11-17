@@ -1,0 +1,21 @@
+Bootstrap: docker
+From: python:3.10-slim
+
+%post
+    apt update && apt install -y \
+        build-essential cmake libhdf5-dev \
+        libopenmpi-dev python3-pyqt5 \
+        git libgl1-mesa-glx
+
+    pip install --upgrade pip
+    pip install numpy scipy matplotlib pyqt5 pyqtgraph h5py pyvista yt flake8 black
+
+%files
+    . /sim
+
+%environment
+    export PYTHONUNBUFFERED=1
+
+%runscript
+    cd /sim
+    python cli.py --config configs/default.yml

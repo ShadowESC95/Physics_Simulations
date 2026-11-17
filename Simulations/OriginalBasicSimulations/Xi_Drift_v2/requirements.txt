@@ -1,0 +1,11 @@
+# requirements.txt
+dash==2.16.1
+numpy
+torch
+plotly
+matplotlib
+scipy
+pyqtgraph
+PyQt5
+sympy
+dash-bootstrap-components

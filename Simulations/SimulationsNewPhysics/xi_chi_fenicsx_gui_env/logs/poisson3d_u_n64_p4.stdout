@@ -1,0 +1,5 @@
+--------------------------------------------------------------------------
+A prefix was supplied to mpiexec that only contained slashes.
+
+This is a fatal error; mpiexec will now abort.  No processes were launched.
+--------------------------------------------------------------------------

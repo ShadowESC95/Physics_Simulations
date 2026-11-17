@@ -1,0 +1,11 @@
+sources:
+  CMB:
+    driver: xarray
+    args:
+      urlpath: "s3://cosmic-data/cmb/xi_polarization.zarr"
+  
+  FusionReactor:
+    driver: sql
+    args:
+      uri: "postgresql://user:pass@reactor.org/telemetry"
+      query: "SELECT * FROM plasma_states"

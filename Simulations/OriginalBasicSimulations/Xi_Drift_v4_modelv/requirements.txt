@@ -1,0 +1,19 @@
+requirements_content = """
+PyQt5>=5.15
+pyqtgraph>=0.13
+numpy>=1.23
+h5py>=3.8
+pyvista>=0.42
+"""
+
+# Save files
+makefile_path = "/mnt/data/Makefile"
+requirements_path = "/mnt/data/requirements.txt"
+
+with open(makefile_path, "w") as f:
+    f.write(makefile_content.strip())
+
+with open(requirements_path, "w") as f:
+    f.write(requirements_content.strip())
+
+makefile_path, requirements_path

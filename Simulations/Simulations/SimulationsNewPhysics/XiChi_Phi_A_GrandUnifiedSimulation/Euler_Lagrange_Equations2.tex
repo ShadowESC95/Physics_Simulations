@@ -1,0 +1,105 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amsfonts,amssymb}
+\usepackage{geometry}
+\usepackage{breqn} % for automatic equation wrapping
+\geometry{margin=1in}
+\setlength{\parindent}{0pt}
+\begin{document}
+
+\title{Euler--Lagrange Equations of the $\Xi$--$\chi$--$\phi$--$A_\mu$ System}
+\date{}
+\maketitle
+
+\section*{Euler--Lagrange Equations}
+
+\subsection*{Field: $\Xi$}
+\begin{dmath*}
+- \alpha\, \chi(t,x,y,z)
+- 2 \beta\, \Xi(t,x,y,z)\, \chi(t,x,y,z)^2
+- m_{\Xi}^2\, \Xi(t,x,y,z)
+- \frac{\partial^2}{\partial t^2} \Xi(t,x,y,z)
+- \frac{\partial^2}{\partial x^2} \Xi(t,x,y,z)
+- \frac{\partial^2}{\partial y^2} \Xi(t,x,y,z)
+- \frac{\partial^2}{\partial z^2} \Xi(t,x,y,z)
+\end{dmath*}
+
+\subsection*{Field: $\chi$}
+\begin{dmath*}
+- \alpha\, \Xi(t,x,y,z)
+- 2 \beta\, \Xi(t,x,y,z)^2\, \chi(t,x,y,z)
+- m_{\chi}^2\, \chi(t,x,y,z)
+- \frac{\partial^2}{\partial t^2} \chi(t,x,y,z)
+- \frac{\partial^2}{\partial x^2} \chi(t,x,y,z)
+- \frac{\partial^2}{\partial y^2} \chi(t,x,y,z)
+- \frac{\partial^2}{\partial z^2} \chi(t,x,y,z)
+\end{dmath*}
+
+\subsection*{Field: $\phi$}
+\begin{dmath*}
+m_A^2 \left(
+\frac{\partial}{\partial t} A_0(t,x,y,z) - \frac{\partial^2}{\partial t^2} \phi(t,x,y,z)
++ \frac{\partial}{\partial x} A_1(t,x,y,z) - \frac{\partial^2}{\partial x^2} \phi(t,x,y,z)
++ \frac{\partial}{\partial y} A_2(t,x,y,z) - \frac{\partial^2}{\partial y^2} \phi(t,x,y,z)
++ \frac{\partial}{\partial z} A_3(t,x,y,z) - \frac{\partial^2}{\partial z^2} \phi(t,x,y,z)
+\right)
+- m_{\phi}^2\, \phi(t,x,y,z)
+- \frac{\partial^2}{\partial t^2} \phi(t,x,y,z)
+- \frac{\partial^2}{\partial x^2} \phi(t,x,y,z)
+- \frac{\partial^2}{\partial y^2} \phi(t,x,y,z)
+- \frac{\partial^2}{\partial z^2} \phi(t,x,y,z)
+\end{dmath*}
+
+\subsection*{Field: $A_0$}
+\begin{dmath*}
+m_A^2 \left( A_0(t,x,y,z) - \frac{\partial}{\partial t} \phi(t,x,y,z) \right)
++ \frac{1}{2} \left(
+\frac{\partial^2}{\partial x^2} A_0(t,x,y,z)
++ \frac{\partial^2}{\partial y^2} A_0(t,x,y,z)
++ \frac{\partial^2}{\partial z^2} A_0(t,x,y,z)
+- \frac{\partial^2}{\partial x \partial t} A_1(t,x,y,z)
+- \frac{\partial^2}{\partial y \partial t} A_2(t,x,y,z)
+- \frac{\partial^2}{\partial z \partial t} A_3(t,x,y,z)
+\right)
+\end{dmath*}
+
+\subsection*{Field: $A_1$}
+\begin{dmath*}
+m_A^2 \left( A_1(t,x,y,z) - \frac{\partial}{\partial x} \phi(t,x,y,z) \right)
++ \frac{1}{2} \left(
+\frac{\partial^2}{\partial t^2} A_1(t,x,y,z)
++ \frac{\partial^2}{\partial y^2} A_1(t,x,y,z)
++ \frac{\partial^2}{\partial z^2} A_1(t,x,y,z)
+- \frac{\partial^2}{\partial t \partial x} A_0(t,x,y,z)
+- \frac{\partial^2}{\partial y \partial x} A_2(t,x,y,z)
+- \frac{\partial^2}{\partial z \partial x} A_3(t,x,y,z)
+\right)
+\end{dmath*}
+
+\subsection*{Field: $A_2$}
+\begin{dmath*}
+m_A^2 \left( A_2(t,x,y,z) - \frac{\partial}{\partial y} \phi(t,x,y,z) \right)
++ \frac{1}{2} \left(
+\frac{\partial^2}{\partial t^2} A_2(t,x,y,z)
++ \frac{\partial^2}{\partial x^2} A_2(t,x,y,z)
++ \frac{\partial^2}{\partial z^2} A_2(t,x,y,z)
+- \frac{\partial^2}{\partial t \partial y} A_0(t,x,y,z)
+- \frac{\partial^2}{\partial x \partial y} A_1(t,x,y,z)
+- \frac{\partial^2}{\partial z \partial y} A_3(t,x,y,z)
+\right)
+\end{dmath*}
+
+\subsection*{Field: $A_3$}
+\begin{dmath*}
+m_A^2 \left( A_3(t,x,y,z) - \frac{\partial}{\partial z} \phi(t,x,y,z) \right)
++ \frac{1}{2} \left(
+\frac{\partial^2}{\partial t^2} A_3(t,x,y,z)
++ \frac{\partial^2}{\partial x^2} A_3(t,x,y,z)
++ \frac{\partial^2}{\partial y^2} A_3(t,x,y,z)
+- \frac{\partial^2}{\partial t \partial z} A_0(t,x,y,z)
+- \frac{\partial^2}{\partial x \partial z} A_1(t,x,y,z)
+- \frac{\partial^2}{\partial y \partial z} A_2(t,x,y,z)
+\right)
+\end{dmath*}
+
+\end{document}
+

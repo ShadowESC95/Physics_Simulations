@@ -1,0 +1,3 @@
+/home/user/Downloads/XiChiFieldSimulation_fixed_mkii/build/CMakeFiles/xichi_sim.dir
+/home/user/Downloads/XiChiFieldSimulation_fixed_mkii/build/CMakeFiles/edit_cache.dir
+/home/user/Downloads/XiChiFieldSimulation_fixed_mkii/build/CMakeFiles/rebuild_cache.dir

@@ -1,0 +1,349 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+import sys
+import glob
+from pathlib import Path
+
+import numpy as np
+import pyvista as pv
+from PyQt5 import QtWidgets, QtCore
+try:
+    from pyvistaqt import BackgroundPlotter
+except Exception as e:
+    print("pyvistaqt not available:", e)
+    sys.exit(1)
+
+# Controls helpers (already created earlier)
+try:
+    from ._make_controls import build_controls, dock_controls
+except Exception:
+    from _make_controls import build_controls, dock_controls
+
+
+def _pv_interactive_default():
+    # Avoid pv.rcParams; prefer global_theme when present
+    try:
+        gt = getattr(pv, 'global_theme', None)
+        if gt is not None and hasattr(gt, 'interactive'):
+            return bool(gt.interactive)
+    except Exception:
+        pass
+    return True
+
+
+def _ensure_xi_scalar(mesh: pv.DataSet) -> pv.DataSet:
+    """Guarantee there is a usable float scalar to color by (prefer 'Xi')."""
+    try:
+        # Prefer an existing Xi
+        if 'Xi' in mesh.point_data:
+            mesh.set_active_scalars('Xi')
+            return mesh
+        if 'Xi' in mesh.cell_data:
+            mesh.set_active_scalars('Xi')
+            return mesh
+
+        # Any numeric point/cell array
+        for name, arr in list(mesh.point_data.items()):
+            dt = getattr(arr, 'dtype', None)
+            if dt is not None and dt.kind in ('f', 'i'):
+                mesh.set_active_scalars(name)
+                return mesh
+        for name, arr in list(mesh.cell_data.items()):
+            dt = getattr(arr, 'dtype', None)
+            if dt is not None and dt.kind in ('f', 'i'):
+                mesh.set_active_scalars(name)
+                return mesh
+
+        # Synthesize Xi from geometry (radial distance from bbox center)
+        P = getattr(mesh, 'points', None)
+        if P is None or len(P) == 0:
+            mesh.point_data['Xi'] = np.zeros(getattr(mesh, 'n_points', 0), dtype=float)
+        else:
+            c = (P.max(axis=0) + P.min(axis=0)) / 2.0
+            r = np.linalg.norm(P - c, axis=1)
+            r = r / r.max() if r.max() > 0 else r
+            mesh.point_data['Xi'] = r.astype(float)
+        mesh.set_active_scalars('Xi')
+    except Exception as e:
+        print("[warn] _ensure_xi_scalar failed:", e)
+    return mesh
+
+
+def _coerce_active_to_float(mesh: pv.DataSet) -> pv.DataSet:
+    """If active scalars are not float/int, cast to float."""
+    try:
+        name = mesh.active_scalars_name
+        arr = mesh.active_scalars
+        if name and arr is not None:
+            dt = getattr(arr, 'dtype', None)
+            if dt is not None and dt.kind not in ('f', 'i'):
+                mesh[name] = arr.astype(float)
+    except Exception as e:
+        print("[warn] _coerce_active_to_float failed:", e)
+    return mesh
+
+
+def _read_mesh(path: Path) -> pv.DataSet:
+    """Read a VTU and make sure a usable scalar exists."""
+    try:
+        mesh = pv.read(str(path))
+    except Exception as e:
+        print(f"[warn] pv.read failed on {path}: {e}")
+        # Optional: meshio fallback could go here if needed
+        raise
+    mesh = _ensure_xi_scalar(mesh)
+    mesh = _coerce_active_to_float(mesh)
+    return mesh
+
+
+def _discover_series() -> list[Path]:
+    """Find VTUs in modules/data, data, or output (sorted)."""
+    roots = [Path("modules/data"), Path("data"), Path("output")]
+    files = []
+    for r in roots:
+        if r.is_dir():
+            files.extend(sorted(r.glob("*.vtu")))
+    return files
+
+
+class Viewer:
+    def __init__(self, files: list[Path], interval_ms: int = 250):
+        if not files:
+            raise SystemExit("No VTU files found in modules/data, data, or output")
+        self.files = files
+        self.n_frames = len(files)
+        self.frame_index = 0
+        self.interval_ms = int(interval_ms)
+
+        # Plotter
+        self.plotter = BackgroundPlotter(title="Ξ–χ Field Viewer", off_screen=False, show=False)
+
+        # Timer for play/pause
+        self._timer = QtCore.QTimer()
+        self._timer.timeout.connect(self._advance)
+
+        # First frame
+        self.mesh_actor = None
+        self._show_frame(0)
+
+        # Controls
+        self._make_controls()
+
+        # hotkeys: s: screenshot, i: isosurface, v: volume, 1/2/3: x/y/z slice
+        try:
+            self.plotter.add_key_event("s", lambda: self.save_screenshot())
+            self.plotter.add_key_event("i", lambda: self.add_isosurface())
+            self.plotter.add_key_event("v", lambda: self.add_volume_resample())
+            self.plotter.add_key_event("1", lambda: self.add_slice_plane(normal=(1,0,0)))
+            self.plotter.add_key_event("2", lambda: self.add_slice_plane(normal=(0,1,0)))
+            self.plotter.add_key_event("3", lambda: self.add_slice_plane(normal=(0,0,1)))
+        except Exception as e:
+            print("[warn] keybinds unavailable:", e)
+
+        # Show window
+        self.plotter.show()
+
+    # ------------- transport & UI -------------
+    def _make_controls(self):
+        try:
+            w = build_controls(self)
+        except Exception:
+            w = QtWidgets.QWidget()
+        dock_controls(self.plotter, w, area='right', name='Controls')
+        self.controls_widget = w
+
+    def set_frame(self, i: int):
+        i = int(max(0, min(self.n_frames - 1, i)))
+        if i == self.frame_index and self.mesh_actor is not None:
+            return
+        self.frame_index = i
+        self._show_frame(i)
+
+    def _advance(self):
+        nxt = (self.frame_index + 1) % self.n_frames
+        self.set_frame(nxt)
+
+    def play(self):
+        self._timer.start(self.interval_ms)
+
+    def pause(self):
+        self._timer.stop()
+
+    def stop(self):
+        self.pause()
+
+    def start(self):
+        self.play()
+
+    def toggle_play(self):
+        if self._timer.isActive():
+            self.pause()
+        else:
+            self.play()
+
+    def set_interval_ms(self, ms: int):
+        self.interval_ms = int(ms)
+        if self._timer.isActive():
+            self._timer.start(self.interval_ms)
+
+    def render(self):
+        try:
+            self.plotter.render()
+        except Exception:
+            pass
+
+    def toggle_axes(self, on: bool):
+        try:
+            if on:
+                self.plotter.show_axes()
+            else:
+                # best-effort hide
+                if hasattr(self.plotter, "remove_bounds_axes"):
+                    self.plotter.remove_bounds_axes()
+        except Exception:
+            pass
+
+    def toggle_grid(self, on: bool):
+        try:
+            if on:
+                self.plotter.show_grid()
+            else:
+                self.plotter.remove_bounds_axes()
+        except Exception:
+            pass
+
+    # ------------- data & drawing -------------
+    def _show_frame(self, idx: int):
+        path = self.files[idx]
+        try:
+            mesh = _read_mesh(path)
+        except Exception as e:
+            print(f"[warn] failed to load {path}: {e}")
+            return
+
+        if self.mesh_actor is not None:
+            try:
+                self.plotter.remove_actor(self.mesh_actor)
+            except Exception:
+                pass
+            self.mesh_actor = None
+
+        try:
+            self.mesh_actor = self.plotter.add_mesh(
+                mesh,
+                scalars=mesh.active_scalars_name or 'Xi',
+                cmap="viridis",
+                show_edges=False,
+            )
+            try:
+                self.plotter.add_scalar_bar(title=mesh.active_scalars_name or "Xi")
+            except Exception:
+                pass
+        except Exception as e:
+            print(f"[warn] add_mesh failed: {e}")
+
+        self.render()
+
+# ----- analysis & export tools -----
+def probe_point(self, p):
+    import numpy as np
+    mesh = getattr(self.mesh_actor, "mapper", None)
+    mesh = getattr(mesh, "dataset", None) or None
+    if mesh is None:
+        print("[warn] no mesh loaded"); return
+    arr = mesh.sample(np.array([p])).point_data.get(mesh.active_scalars_name, [None])[0]
+    print("probe", p, "=", arr)
+
+def save_screenshot(self, path="frame.png"):
+    try:
+        self.plotter.screenshot(path); print("saved", path)
+    except Exception as e:
+        print("[warn] screenshot failed:", e)
+
+def add_slice_plane(self, origin=None, normal=(1,0,0)):
+    mesh = self.mesh_actor.mapper.dataset
+    if origin is None:
+        b = mesh.bounds
+        origin = ((b[0]+b[1])/2, (b[2]+b[3])/2, (b[4]+b[5])/2)
+    slc = mesh.slice(normal=normal, origin=origin)
+    self.plotter.add_mesh(slc, opacity=1.0)
+    self.render()
+
+def add_isosurface(self, value=None, n=1):
+    mesh = self.mesh_actor.mapper.dataset
+    rng = mesh.get_data_range(mesh.active_scalars_name)
+    if value is None:
+        value = 0.5*(rng[0]+rng[1])
+    iso = mesh.contour(isosurfaces=n, scalars=mesh.active_scalars_name, rng=[value, value])
+    self.plotter.add_mesh(iso, opacity=1.0)
+    self.render()
+
+def add_volume_resample(self, dims=(128,128,128)):
+    # resample unstructured to uniform grid -> volume render
+    mesh = self.mesh_actor.mapper.dataset
+    import pyvista as pv
+    img = pv.ImageData()
+    img.dimensions = dims
+    img.origin = (mesh.bounds[0], mesh.bounds[2], mesh.bounds[4])
+    img.spacing = (
+        (mesh.bounds[1]-mesh.bounds[0])/(dims[0]-1),
+        (mesh.bounds[3]-mesh.bounds[2])/(dims[1]-1),
+        (mesh.bounds[5]-mesh.bounds[4])/(dims[2]-1),
+    )
+    sampled = img.sample(mesh)
+    self.plotter.add_volume(sampled, scalars=mesh.active_scalars_name, opacity='sigmoid')
+    self.render()
+
+
+def main():
+    files = _discover_series()
+    if not files:
+        # last-ditch: try one common name so it doesn't feel silent
+        guess = Path("output/fields_t00000.vtu")
+        if guess.exists():
+            files = [guess]
+    # Print a hint if nothing found
+    if not files:
+        print("No VTUs found. Put files in modules/data, data, or output.")
+        sys.exit(1)
+
+    if _pv_interactive_default():
+        Viewer(files, interval_ms=250)
+    else:
+        # Off-screen snapshot of first frame
+        mesh = _read_mesh(files[0])
+        pv.plot(mesh, screenshot="frame0.png")
+        print("Saved frame0.png")
+
+
+def add_slice_plane(self, origin=None, normal=(1,0,0)):
+    mesh = self.mesh_actor.mapper.dataset
+    slc = mesh.slice(normal=normal, origin=origin)
+    self.plotter.add_mesh(slc, opacity=1.0)
+
+def add_isosurface(self, value=None, n=1):
+    mesh = self.mesh_actor.mapper.dataset
+    if value is None:
+        # pick mid of current scalar range
+        rng = mesh.get_data_range(mesh.active_scalars_name)
+        value = 0.5*(rng[0]+rng[1])
+    iso = mesh.contour(isosurfaces=n, scalars=mesh.active_scalars_name, rng=[value, value])
+    self.plotter.add_mesh(iso, opacity=1.0)
+
+def add_volume_resample(self, dims=(128,128,128)):
+    # “volume-like” by resampling unstructured to a uniform grid
+    mesh = self.mesh_actor.mapper.dataset
+    img = pv.ImageData()
+    img.dimensions = dims
+    img.origin = mesh.bounds[0], mesh.bounds[2], mesh.bounds[4]
+    img.spacing = (
+        (mesh.bounds[1]-mesh.bounds[0])/(dims[0]-1),
+        (mesh.bounds[3]-mesh.bounds[2])/(dims[1]-1),
+        (mesh.bounds[5]-mesh.bounds[4])/(dims[2]-1),
+    )
+    sampled = img.sample(mesh)
+    self.plotter.add_volume(sampled, scalars=mesh.active_scalars_name, opacity='sigmoid')
+
+if __name__ == "__main__":
+    main()

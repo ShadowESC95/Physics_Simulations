@@ -1,0 +1,25 @@
+
+name: CI - Model 5 Framework
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      - name: Install dependencies
+        run: |
+          pip install numpy matplotlib dash plotly
+      - name: Run simulation test
+        run: python simulate_model5.py --steps 10
+      - name: Check dashboard file exists
+        run: test -f model5_dashboard_full.py

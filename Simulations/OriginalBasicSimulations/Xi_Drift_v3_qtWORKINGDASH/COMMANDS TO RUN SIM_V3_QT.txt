@@ -1,0 +1,61 @@
+🌐 List of Web-Accessible Services I am Running
+Tool	          Local Address	      Description
+
+Dash App	        http://localhost:8050
+GUI field/entropy/spiral visualizer
+
+TensorBoard	        http://localhost:6006	Scalars/graph logging from simulations
+
+Telemetry WS	       ws://localhost:8765	   WebSocket feed of drift/entropy/energy
+
+Flask (if separate)	    http://localhost:5000	Optional API endpoints or microservices
+
+Jupyter (if used)	http://localhost:8888
+Not currently launched, can add easily
+
+
+
+
+
+# Step 1: Run parallel sim
+mpirun -n 4 python3 sim/parallel_launcher.py
+
+# Step 2: Merge per-rank fields into logs
+python3 tools/merge_logs.py
+
+# Step 3: Visualize spiral plot
+python3 tools/plot_phase_spiral.py
+
+# Step 4: Launch GUI with updated data
+python3 app.py  # or gunicorn app:server --bind 0.0.0.0:8050
+
+# Step 5: Export for yt / TensorBoard
+python3 data/convert_to_yt.py
+tensorboard --logdir logs/
+
+# Step 6: Compile report
+pdflatex report.tex
+
+
+# Optional: Start Dash GUI in production via Gunicorn
+gunicorn app:server --bind 0.0.0.0:8050 --workers 2
+
+# Export to yt format
+python3 data/convert_to_yt.py
+
+#merge logs
+python tools/merge_logs.py
+
+
+
+---if errors occur---
+rm output/*.npy
+python run_sim.py
+
+
+
+sudo systemctl daemon-reexec
+sudo systemctl daemon-reload
+sudo systemctl enable XiDash.service
+sudo systemctl start XiDash.service
+

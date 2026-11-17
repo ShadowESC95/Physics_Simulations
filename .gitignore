@@ -1,0 +1,24 @@
+
+# Local dependencies and simulation data
+/Simulations/SimulationsNewPhysics/xi_chi_fenicsx_gui_env/modules/xi_chi_evolution.h5
+
+# Local dependencies and simulation data
+/Simulations/SimulationsNewPhysics/xi_chi_fenicsx_gui_env/venv
+
+# Local dependencies and simulation data
+/Simulations/SimulationsNewPhysics/DBR_XiChiPhi_Meep_Pip_Engine/miniconda.sh
+
+# Local dependencies and simulation data
+/Simulations/SimulationsNewPhysics/DBR_XiChiPhi_Meep_Pip_Engine/venv-xichi
+
+# Local dependencies and simulation data
+/Simulations/Simulations/SimulationsNewPhysics/Distributed_Bragg_Reflector/DBR_XiChiPhi_3D_Engine/simulation/Miniconda3-latest-Linux-x86_64.sh
+
+# Local dependencies and simulation data
+/Simulations/Simulations/dealii-9.6.2
+
+/Simulations/Simulations/SimulationsNewPhysics/Distributed_Bragg_Reflector/DBR_XiChiPhi_3D_Engine/simulation/Miniconda3-latest-Linux-x86_64.sh.1
+
+# Downloaded Miniconda installers
+Miniconda3-latest-Linux-x86_64.sh
+Miniconda3-latest-Linux-x86_64.sh.[0-9]*

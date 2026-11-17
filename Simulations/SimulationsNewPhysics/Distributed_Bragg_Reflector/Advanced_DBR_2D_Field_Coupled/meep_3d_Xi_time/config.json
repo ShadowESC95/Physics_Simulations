@@ -1,0 +1,15 @@
+
+{
+  "Nx": 128,
+  "Ny": 64,
+  "Nz": 64,
+  "resolution": 10,
+  "source_position": [8.0, 4.0, 2.0],
+  "Xi_decay_type": "gaussian",
+  "Xi_decay_center": 50,
+  "Xi_decay_sigma": 20,
+  "epsilon_base": 2.25,
+  "alpha_Xi": 1.0,
+  "pml_thickness": 1.0,
+  "simulation_time": 200
+}

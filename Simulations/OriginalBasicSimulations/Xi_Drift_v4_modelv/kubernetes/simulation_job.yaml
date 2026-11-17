@@ -1,0 +1,23 @@
+apiVersion: kubeflow.org/v1
+kind: MPIJob
+metadata:
+  name: xichi-mpi
+spec:
+  slotsPerWorker: 4  # GPUs per node
+  mpiReplicaSpecs:
+    Launcher:
+      replicas: 1
+      template:
+        spec:
+          containers:
+          - image: xichi-gpu:latest
+            command: ["mpirun", "python3", "sim/parallel_launcher.py"]
+    Worker:
+      replicas: 10
+      template:
+        spec:
+          containers:
+          - image: xichi-gpu:latest
+            resources:
+              limits:
+                nvidia.com/gpu: 4

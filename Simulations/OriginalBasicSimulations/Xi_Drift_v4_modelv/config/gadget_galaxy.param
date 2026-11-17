@@ -1,0 +1,17 @@
+InitCondFile        = ic.dat
+OutputDir           = output/
+SnapshotFileBase    = snapshot
+TimeBegin           = 0.0
+TimeMax             = 1.0
+Omega0              = 0.3
+OmegaLambda         = 0.7
+BoxSize             = 100000.0
+TimeBetSnapshot     = 0.05
+TypeOfTimestepCriterion = 0
+ErrTolIntAccuracy   = 0.025
+TypeOfOpeningCriterion = 1
+ErrTolTheta         = 0.5
+DesNumNgb           = 64
+UnitLength_in_cm    = 3.085678e21
+UnitMass_in_g       = 1.989e43
+UnitVelocity_in_cm_per_s = 1e5

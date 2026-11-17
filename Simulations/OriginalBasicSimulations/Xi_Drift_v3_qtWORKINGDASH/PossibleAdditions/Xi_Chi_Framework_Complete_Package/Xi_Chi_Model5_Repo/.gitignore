@@ -1,0 +1,5 @@
+__pycache__/
+*.npy
+*.zip
+.env
+.DS_Store

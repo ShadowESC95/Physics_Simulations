@@ -1,0 +1,45 @@
+name: xichisim_env
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  # Core finite element solver
+  - python=3.10
+  - fenics-dolfinx=0.5.*       # FEniCSx (DolfinX) with PETSc
+  - petsc=3.19.*
+  - mpi4py
+
+  # Devito for finite difference wave equations
+  - pip:
+    - devito==4.3.0           # Example version for Devito
+
+  # Meep for FDTD (with OpenMP or MPI support)
+  - meep=1.23.0               # Meep library (conda-forge)
+  - pymeep=1.23.0             # Python bindings for Meep
+
+  # MFEM (e.g., via PyMFEM or direct)
+  - mfem=4.5.2                # MFEM library
+  - py-mfem=4.5.2             # PyMFEM Python interface (if available)
+
+  # Dedalus for spectral methods
+  - pip:
+    - dedalus==2.2302         # Dedalus v2 (pip installation)
+
+  # Visualization libraries
+  - pyvista=0.39.0
+  - pyvistaqt=0.9.0           # PyVista with Qt support for GUI
+  - vtk=9.2.2                 # VTK (for Paraview/Catalyst compatibility)
+  - paraview-catalyst=5.11.0  # ParaView Catalyst (if available via conda)
+  - qt=5.*                    # Qt for the GUI
+
+  # Cosmology (CLASS via classy)
+  - pip:
+    - classy==3.1.0           # CLASS wrapper for Python
+
+  # Additional scientific packages
+  - numpy=1.24
+  - scipy=1.11
+  - meshio=5.3.4              # For mesh format conversion (Fenics output to VTK)
+  - h5py=3.8.0                # HDF5 support
+  - matplotlib=3.7            # (optional, for quick plots)
+

@@ -1,0 +1,12 @@
+#include "sinusoidal_modulation.h"
+#include <cmath>
+
+template <int dim>
+void apply_sinusoidal_modulation(dealii::DoFHandler<dim> &dof_handler,
+                                  dealii::Vector<double> &vec,
+                                  double amplitude) {
+  for (unsigned int i = 0; i < vec.size(); ++i)
+    vec[i] = amplitude * std::sin(static_cast<double>(i));
+}
+
+template void apply_sinusoidal_modulation<3>(dealii::DoFHandler<3> &, dealii::Vector<double> &, double);

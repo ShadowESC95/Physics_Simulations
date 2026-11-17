@@ -1,0 +1,5 @@
+solver: fenics
+time_steps: 200
+frequency: 0.05
+resolution: 32
+export_format: vtk

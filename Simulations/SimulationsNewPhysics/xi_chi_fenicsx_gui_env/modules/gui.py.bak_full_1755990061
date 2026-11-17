@@ -1,0 +1,318 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+"""
+Xi–χ field viewer (robust)
+- Auto-discovers VTU time series in ./data or ./XiChiFieldSimulation_fixed_mkii/output
+- Loads odd VTUs (Vertex/triangle/line) via meshio fallback
+- Guarantees a scalar 'Xi' for coloring (derived from geometry if missing)
+- Start/Stop GUI using PyVistaQt
+"""
+
+import sys
+from pathlib import Path
+from typing import Union, List
+
+import numpy as np
+import pyvista as pv
+
+# ---------- helpers (single definitions only) ----------
+def _pv_interactive_default() -> bool:
+    try:
+        gt = getattr(pv, 'global_theme', None)
+        if gt is not None and hasattr(gt, 'interactive'):
+            return bool(gt.interactive)
+        rc = getattr(pv, 'rcParams', None)
+        if rc is not None:
+            return bool(rc.get('interactive', True))
+    except Exception:
+        pass
+    return True
+
+
+def _coerce_scalars_to_float(mesh: pv.DataSet) -> pv.DataSet:
+    try:
+        arr = mesh.active_scalars
+        if arr is not None and getattr(arr, "dtype", None) and arr.dtype.kind not in ('f', 'i'):
+            mesh[mesh.active_scalars_name] = arr.astype(float)
+    except Exception as e:
+        print('[warn] failed to coerce scalars:', e)
+    return mesh
+
+
+def _ensure_xi_scalar(mesh: pv.DataSet) -> pv.DataSet:
+    # Use existing 'Xi' if present
+    try:
+        if 'Xi' in mesh.point_data:
+            mesh.set_active_scalars('Xi'); return mesh
+        if 'Xi' in mesh.cell_data:
+            mesh.set_active_scalars('Xi'); return mesh
+        # Pick any numeric array
+        for name, arr in list(mesh.point_data.items()):
+            dt = getattr(arr, 'dtype', None)
+            if dt is not None and dt.kind in ('f','i'):
+                mesh.set_active_scalars(name); return mesh
+        for name, arr in list(mesh.cell_data.items()):
+            dt = getattr(arr, 'dtype', None)
+            if dt is not None and dt.kind in ('f','i'):
+                mesh.set_active_scalars(name); return mesh
+        # Synthesize Xi from geometry (radius from bbox center)
+        P = getattr(mesh, 'points', None)
+        if P is None or len(P) == 0:
+            # last resort: zeros
+            mesh.point_data['Xi'] = np.zeros(getattr(mesh, 'n_points', 0), dtype=float)
+        else:
+            c = (P.max(axis=0) + P.min(axis=0)) / 2.0
+            r = ((P - c)**2).sum(axis=1)**0.5
+            if r.max() > 0: r = r / r.max()
+            mesh.point_data['Xi'] = r.astype(float)
+        mesh.set_active_scalars('Xi')
+    except Exception as e:
+        print('[warn] failed to ensure Xi scalar:', e)
+    return mesh
+
+
+def _add_Xi_if_missing(mesh: pv.DataSet) -> pv.DataSet:
+    """Ensure a scalar named 'Xi' exists to color by (used for meshio fallback result)."""
+    if "Xi" in mesh.point_data or "Xi" in mesh.cell_data:
+        return mesh
+
+    P = getattr(mesh, "points", None)
+    if P is None or P.size == 0:
+        mesh.point_data["Xi"] = np.arange(getattr(mesh, "n_points", 0), dtype=float)
+        return mesh
+
+    if P.shape[1] >= 3:
+        mesh.point_data["Xi"] = P[:, 2]
+    else:
+        mesh.point_data["Xi"] = np.linalg.norm(P[:, :2], axis=1)
+    return mesh
+
+# ---------- mesh reader ----------
+def load_any_vtu(path: Union[str, Path]) -> pv.DataSet:
+    """Read a VTU robustly. If the standard reader fails (e.g., 'Vertex' cells), use meshio."""
+    p = str(path)
+    try:
+        m = pv.read(p)  # normal path (handles standard VTK/VTU)
+        return _add_Xi_if_missing(m)
+    except Exception:
+        # Fallback path: use meshio for odd/unsupported cell types
+        try:
+            import meshio
+        except Exception as me:
+            raise RuntimeError("meshio required for fallback VTU reading but not installed") from me
+
+        msh = meshio.read(p)
+        pts = msh.points.astype(float, copy=False)
+
+        kinds = [blk.type.lower() for blk in msh.cells]
+        if not kinds or "vertex" in kinds:
+            mesh = pv.PolyData(pts)
+        elif "triangle" in kinds:
+            tri = msh.cells[kinds.index("triangle")].data
+            faces = np.hstack([np.full((tri.shape[0], 1), 3), tri]).ravel()
+            mesh = pv.PolyData(pts, faces=faces)
+        elif "line" in kinds:
+            seg = msh.cells[kinds.index("line")].data
+            lines = np.hstack([np.full((seg.shape[0], 1), 2), seg]).ravel()
+            mesh = pv.PolyData(pts, lines=lines)
+        else:
+            mesh = pv.PolyData(pts)
+
+        # Carry over a 1-component point array if present, else synthesize
+        xi = None
+        for name, arr in msh.point_data.items():
+            a = np.asarray(arr)
+            if a.ndim == 1 or (a.ndim == 2 and a.shape[1] == 1):
+                xi = a.ravel()
+                break
+        if xi is None:
+            xi = (pts[:, 2] if pts.shape[1] >= 3 else np.linalg.norm(pts[:, :2], axis=1))
+
+        mesh.point_data["Xi"] = xi
+        return mesh
+
+# ---------- file discovery ----------
+BASE = Path(__file__).resolve().parent
+
+def discover_series() -> List[Path]:
+    """Find VTU frames in preferred locations, sorted."""
+    candidates = []
+    # Preferred: ./data/xi_field*.vtu
+    candidates.extend(sorted((BASE / "data").glob("xi_field*.vtu")))
+    # Fallback: ./XiChiFieldSimulation_fixed_mkii/output/fields_t*.vtu
+    candidates.extend(sorted((BASE / "XiChiFieldSimulation_fixed_mkii" / "output").glob("fields_t*.vtu")))
+    # Remove dupes while preserving order
+    seen, uniq = set(), []
+    for f in candidates:
+        if f not in seen:
+            uniq.append(f)
+            seen.add(f)
+    return uniq
+
+# ---------- imports for GUI (pyvistaqt + Qt) ----------
+try:
+    from pyvistaqt import BackgroundPlotter
+except Exception as e:
+    print("pyvistaqt not available:", e)
+    print("Install with: python3 -m pip install --user pyvistaqt")
+    sys.exit(1)
+
+from PyQt5 import QtWidgets, QtCore
+
+# try to import local control builder (fallback to empty widget)
+try:
+    from ._make_controls import build_controls, dock_controls
+except Exception:
+    try:
+        from _make_controls import build_controls, dock_controls
+    except Exception:
+        def build_controls(viewer):
+            w = QtWidgets.QWidget()
+            return w
+        def dock_controls(plotter, widget, area='right', name='Controls'):
+            try:
+                plotter.add_dock_widget(widget, area=area)
+            except Exception:
+                pass
+            return widget
+
+# =========================
+# Viewer / Controller
+# =========================
+class Viewer:
+    def __init__(self, files: List[Path], interval_ms: int = 250):
+        if not files:
+            raise FileNotFoundError("No VTU files found in ./data or ./XiChiFieldSimulation_fixed_mkii/output")
+
+        self.files = files
+        self.idx = 0
+        self.timer = None
+        self.interval_ms = interval_ms
+
+        self.plotter = BackgroundPlotter(title="PyVista")
+        self.plotter.add_text("Ξ-χ Field Simulation", position="upper_left", font_size=10)
+        try:
+            self.plotter.show_axes()
+        except Exception:
+            pass
+
+        # UI panel
+        self._make_controls()
+
+        # initial frame
+        self.mesh_actor = None
+        self._show_frame(0)
+
+    def _make_controls(self):
+        # Build a Qt controls widget and dock it; keep handles.
+        try:
+            w = build_controls(self)
+        except Exception:
+            # Fallback: minimal empty panel if builder is missing
+            w = QtWidgets.QWidget()
+        self.controls_widget = w
+        try:
+            self.dock_controls = dock_controls(self.plotter, w, area='right', name='Controls')
+        except Exception:
+            self.dock_controls = w
+        return w
+
+    def _show_frame(self, i: int):
+        # proper indentation and control flow for loading/updating a frame
+        self.idx = i % len(self.files)
+        f = self.files[self.idx]
+        try:
+            mesh = load_any_vtu(f)
+        except Exception as e:
+            # If a frame is unreadable, log and skip to the next
+            print(f"[warn] failed to load {f}: {e}")
+            self.idx = (self.idx + 1) % len(self.files)
+            return
+
+        # coerce scalars and ensure Xi exists
+        mesh = _coerce_scalars_to_float(mesh)
+        mesh = _ensure_xi_scalar(mesh)
+        mesh = _coerce_scalars_to_float(mesh)
+
+        # first time: add; later: update
+        if self.mesh_actor is None:
+            try:
+                self.mesh_actor = self.plotter.add_mesh(
+                    mesh,
+                    scalars=("Xi" if "Xi" in mesh.point_data else None),
+                    show_edges=False,
+                    cmap="viridis",
+                    clim="auto",
+                )
+            except Exception as e:
+                # fallback: add mesh without some kwargs
+                self.mesh_actor = self.plotter.add_mesh(mesh)
+            try:
+                self.plotter.add_scalar_bar(title='Xi')
+            except Exception:
+                pass
+        else:
+            try:
+                # Update actor dataset
+                self.mesh_actor.mapper.SetInputData(mesh)
+                if "Xi" in mesh.point_data:
+                    try:
+                        self.mesh_actor.mapper.SetArrayName("Xi")
+                    except Exception:
+                        pass
+            except Exception:
+                # If VTK-level update fails, re-add the mesh
+                try:
+                    self.plotter.remove_actor(self.mesh_actor)
+                except Exception:
+                    pass
+                self.mesh_actor = self.plotter.add_mesh(mesh, scalars=("Xi" if "Xi" in mesh.point_data else None))
+
+            try:
+                self.plotter.render()
+            except Exception:
+                pass
+
+        # window title with frame info (best-effort)
+        try:
+            self.plotter.app_window.setWindowTitle(f"PyVista – {f.name} ({self.idx+1}/{len(self.files)})")
+        except Exception:
+            pass
+
+    # --- playback controls ---
+    def _tick(self):
+        self._show_frame(self.idx + 1)
+
+    def start(self):
+        from qtpy.QtCore import QTimer
+        if self.timer is None:
+            self.timer = QTimer()
+            self.timer.timeout.connect(self._tick)
+        if not self.timer.isActive():
+            self.timer.start(self.interval_ms)
+
+    def stop(self):
+        if self.timer and self.timer.isActive():
+            self.timer.stop()
+
+
+def main():
+    files = discover_series()
+    v = Viewer(files, interval_ms=250)
+    # keep the Qt app running
+    if _pv_interactive_default():
+        pv.rcParams["interactive"] = True
+    try:
+        v.plotter.app.exec_()
+    except Exception:
+        # fallback for different PyQt versions
+        try:
+            v.plotter.app.exec()
+        except Exception:
+            pass
+
+
+if __name__ == "__main__":
+    main()
+

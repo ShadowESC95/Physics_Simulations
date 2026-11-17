@@ -1,0 +1,3 @@
+name: xichi-gui
+channels:[conda-forge]
+dependencies: [python>=3.10, fenics-dolfinx]

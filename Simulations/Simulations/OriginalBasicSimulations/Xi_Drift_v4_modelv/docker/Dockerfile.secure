@@ -1,0 +1,7 @@
+# Dockerfile.secure
+FROM gramineproject/ubuntu-20.04
+COPY --chmod=600 xi-secrets.pem /etc/keys/
+RUN gramine-sgx-sign \
+    --key xi-secrets.pem \
+    --manifest xi-manifest.yml \
+    --output xi-sgx

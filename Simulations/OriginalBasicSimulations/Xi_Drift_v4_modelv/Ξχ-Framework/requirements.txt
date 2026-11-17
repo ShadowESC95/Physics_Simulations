@@ -1,0 +1,7 @@
+pennylane==0.33
+pennylane-lightning[gpu]
+torch==2.1.0
+mpi4py==3.1.4
+pyvista==0.40.0
+web3==6.10.0
+dash==2.14.0

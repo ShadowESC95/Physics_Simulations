@@ -1,0 +1,13 @@
+
+cff-version: 1.2.0
+message: "If you use this framework, please cite it as below."
+title: "Entropy-Curvature Scalar Framework (Ξ–χ): A Falsifiable Horndeski Cosmology"
+authors:
+  - family-names: [Your Last Name]
+    given-names: [Your First Name]
+    orcid: "https://orcid.org/0000-0000-0000-0000"
+date-released: 2025-04-23
+version: 1.0.0
+doi: 10.5281/zenodo.1234567
+license: MIT
+repository: https://github.com/YOUR_USERNAME/xi-chi-framework

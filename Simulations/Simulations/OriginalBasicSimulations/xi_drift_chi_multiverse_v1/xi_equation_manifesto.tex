@@ -1,0 +1,55 @@
+\documentclass{article}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{geometry}
+\geometry{margin=1in}
+
+\title{The $\xi$ Field Equation Manifesto}
+\author{}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\section*{Key Variables and Definitions}
+
+\begin{itemize}
+  \item $\xi(x, t)$: Primary scalar field (formerly Teff), dynamic in space and time.
+  \item $\chi(x, t)$: Coupled auxiliary field.
+  \item $\nabla \xi$: Gradient of $\xi$, captures directional structure.
+  \item $\partial_t \xi$: Time derivative of $\xi$.
+  \item $\mathcal{L}_\xi$: Lagrangian contribution of the $\xi$ field.
+\end{itemize}
+
+\section*{Evolution Equation}
+
+\[
+\frac{d\xi}{dt} = \Delta \xi - \xi(\xi - 1)^2 + \text{DRIFT}(\xi)
+\]
+
+\section*{DRIFT Tensor}
+
+\[
+T_{ij} = \partial_i \xi \partial_j \xi + \lambda \cdot \Delta \xi \cdot \delta_{ij}
+\]
+
+\section*{Coupling to $\chi$ Field}
+
+\[
+\frac{d\chi}{dt} = \alpha \cdot \xi \cdot \chi + \beta \cdot \nabla^2 \chi
+\]
+
+\section*{Dimensional Anchoring}
+
+\begin{tabular}{|l|l|l|}
+\hline
+\textbf{Observable} & \textbf{Equation} & \textbf{Note} \\
+\hline
+Neutron Stars & $\xi = \frac{\rho_{\text{energy}} t^2}{P}$ & $\sim 10^{32}$ K \\
+Photon Mass & $m_\gamma \sim \kappa \nabla \xi$ & Field-based mass emergence \\
+Entropy Prod. & $\frac{dS}{dt} \propto \frac{(\nabla \xi)^2}{\xi}$ & Thermodynamic signature \\
+\hline
+\end{tabular}
+
+\end{document}
